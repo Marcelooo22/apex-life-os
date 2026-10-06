@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
-<meta name="description" content="Apex: tu sistema personal para gym, hábitos, nutrición y universidad.">
+<meta name="description" content="Apex: tu sistema personal para gym, hábitos, nutrición, hobbies y universidad.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -36,34 +36,34 @@ button{background:none;border:0;cursor:pointer;touch-action:manipulation}
 [data-theme=gym]{--ac:#ff6a2b;--btn:#ff6a2b;--ink:#1a0800;--vbg:#0a0a0a;--r:14px;--card:rgba(255,255,255,.045)}
 [data-theme=habits]{--ac:#34f5a4;--btn:#34f5a4;--ink:#00160c;--vbg:#010b07;--r:28px}
 [data-theme=nutrition]{--ac:#22d3ee;--btn:#22d3ee;--ink:#001419;--vbg:#00080b;--r:22px}
+[data-theme=hobbies]{--ac:#c084fc;--btn:#a855f7;--ink:#10031d;--vbg:#0c0414;--r:20px}
 [data-theme=uni]{--ac:#6aa3ff;--btn:#2563eb;--ink:#fff;--vbg:#05070f;--r:14px}
 
 /* ================= LANDING ================= */
-.landing{position:relative;min-height:100vh;min-height:100dvh;padding:calc(env(safe-area-inset-top) + 72px) 20px calc(env(safe-area-inset-bottom) + 24px);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.landing{position:relative;min-height:100vh;min-height:100dvh;padding:calc(env(safe-area-inset-top) + 60px) 16px calc(env(safe-area-inset-bottom) + 24px);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 .landing::before{content:"";position:absolute;left:-20%;right:-20%;top:-18%;height:60%;background:radial-gradient(50% 50% at 50% 45%,rgba(124,112,255,.24),transparent 70%);filter:blur(30px);pointer-events:none}
 .l-top{position:absolute;top:calc(env(safe-area-inset-top) + 14px);right:16px;z-index:2}
-.l-head{text-align:center;margin:clamp(4px,2vh,20px) 0 clamp(18px,4vh,40px);position:relative}
+.l-head{text-align:center;margin:clamp(4px,1.5vh,16px) 0 clamp(16px,3vh,32px);position:relative}
 .l-date{color:var(--muted);font-size:14px}
-.l-head h1{font-size:clamp(34px,9vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-top:6px}
-.l-sub{color:var(--muted);margin-top:8px;font-size:16px}
-.orbs{--d:min(45vw,196px);display:grid;grid-template-columns:repeat(2,var(--d));gap:22px 18px;justify-content:center;padding-bottom:48px;position:relative}
-.orb:nth-child(even){margin-top:44px}
-@media(min-width:820px){.orbs{--d:200px;grid-template-columns:repeat(4,var(--d));gap:26px}.orb:nth-child(even){margin-top:56px}}
-.orb{position:relative;width:var(--d);height:var(--d);align-self:start;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:14px;color:#fff;text-align:center;
+.l-head h1{font-size:clamp(32px,8vw,48px);font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-top:6px}
+.l-sub{color:var(--muted);margin-top:6px;font-size:15px}
+.orbs{--d:min(42vw,176px);display:flex;flex-wrap:wrap;gap:18px 14px;justify-content:center;max-width:760px;padding-bottom:38px;position:relative}
+@media(min-width:820px){.orbs{--d:180px;gap:24px}}
+.orb{position:relative;width:var(--d);height:var(--d);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:12px;color:#fff;text-align:center;
   background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.3),transparent 36%),radial-gradient(circle at 50% 118%,rgba(var(--rgb),.5),transparent 62%),rgba(255,255,255,.05);
   -webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),inset 0 -20px 44px rgba(var(--rgb),.26),0 26px 54px -20px rgba(var(--rgb),.6);
   animation:drift var(--t) ease-in-out infinite;transition:scale .4s var(--ease)}
-.orb:nth-child(1){--t:9s}.orb:nth-child(2){--t:11s;animation-delay:-3s}.orb:nth-child(3){--t:10s;animation-delay:-6s}.orb:nth-child(4){--t:12s;animation-delay:-2s}
+.orb:nth-child(1){--t:9s}.orb:nth-child(2){--t:11s;animation-delay:-3s}.orb:nth-child(3){--t:10s;animation-delay:-6s}.orb:nth-child(4){--t:12s;animation-delay:-2s}.orb:nth-child(5){--t:10.5s;animation-delay:-4.5s}
 .orb:hover{scale:1.04}.orb:active{scale:.95}
-@keyframes drift{0%,100%{transform:translate3d(0,0,0)}33%{transform:translate3d(5px,-9px,0)}66%{transform:translate3d(-6px,-3px,0)}}
+@keyframes drift{0%,100%{transform:translate3d(0,0,0)}33%{transform:translate3d(4px,-7px,0)}66%{transform:translate3d(-5px,-3px,0)}}
 .orb .ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);pointer-events:none}
 .orb .ring circle{fill:none;stroke-width:2.4}
 .orb .ring .t{stroke:rgba(255,255,255,.1)}
 .orb .ring .p{stroke:var(--c);stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray 1.3s var(--ease)}
-.orb .ico{font-size:32px;margin-bottom:6px;filter:drop-shadow(0 2px 10px rgba(var(--rgb),.8))}
-.orb b{font-size:16px;font-weight:650;letter-spacing:-.01em}
-.orb small{font-size:12.5px;color:rgba(255,255,255,.7);line-height:1.25}
+.orb .ico{font-size:30px;margin-bottom:4px;filter:drop-shadow(0 2px 10px rgba(var(--rgb),.8))}
+.orb b{font-size:15px;font-weight:650;letter-spacing:-.01em}
+.orb small{font-size:12px;color:rgba(255,255,255,.7);line-height:1.2}
 
 /* ================= VISTAS DE SECCIÓN ================= */
 .view{position:fixed;inset:0;z-index:20;background:var(--vbg);overflow:hidden}
@@ -107,7 +107,7 @@ button{background:none;border:0;cursor:pointer;touch-action:manipulation}
 .stat b{display:block;font-size:24px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--muted)}
 
-/* --- GYM: agresivo, carbón y brasa --- */
+/* --- GYM --- */
 #view-gym{background:radial-gradient(120% 50% at 50% 112%,rgba(255,90,20,.3),transparent 62%),repeating-linear-gradient(115deg,rgba(255,255,255,.015) 0 2px,transparent 2px 14px),#0a0a0a}
 #view-gym .v-top{background:linear-gradient(#0a0a0a 60%,transparent)}
 #view-gym .v-head h1{font-size:46px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-.045em;background:linear-gradient(90deg,#ff6a2b,#ffb020);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:8px}
@@ -153,7 +153,7 @@ button{background:none;border:0;cursor:pointer;touch-action:manipulation}
 .rest.done{animation:flash .7s ease 3}
 @keyframes flash{50%{box-shadow:0 0 0 3px rgba(255,176,32,.6),0 20px 50px rgba(0,0,0,.6)}}
 
-/* --- HÁBITOS: claridad mental, menta --- */
+/* --- HÁBITOS --- */
 #view-habits{background:radial-gradient(90% 46% at 50% -8%,rgba(52,245,164,.2),transparent 62%),#010b07}
 #view-habits .v-top{background:linear-gradient(#010b07 60%,transparent)}
 #view-habits .v-head h1{font-weight:700}
@@ -183,7 +183,7 @@ button{background:none;border:0;cursor:pointer;touch-action:manipulation}
 .week i.on{background:var(--ac)}.week i.t{outline:1.5px solid rgba(255,255,255,.55);outline-offset:1.5px}
 .h-pct{text-align:right}.h-pct b{display:block;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}.h-pct small{font-size:11px;color:var(--muted)}
 
-/* --- NUTRICIÓN: anillos cian y ámbar --- */
+/* --- NUTRICIÓN --- */
 #view-nutrition{background:radial-gradient(80% 44% at 100% 0,rgba(34,211,238,.17),transparent 62%),radial-gradient(70% 40% at 0 100%,rgba(251,191,36,.11),transparent 62%),#00080b}
 #view-nutrition .v-top{background:linear-gradient(#00080b 60%,transparent)}
 .rings{position:relative;width:min(244px,70vw);aspect-ratio:1;margin:4px auto 14px}
@@ -211,7 +211,27 @@ button{background:none;border:0;cursor:pointer;touch-action:manipulation}
 .meal small{display:flex;gap:10px;color:var(--muted);font-size:12.5px;margin-top:2px}
 .meal b{font-variant-numeric:tabular-nums;white-space:nowrap}
 
-/* --- UNIVERSIDAD: carpetas estilo iPadOS --- */
+/* --- HOBBIES: violeta & neón musical --- */
+#view-hobbies{background:radial-gradient(90% 46% at 50% -8%,rgba(168,85,247,.22),transparent 64%),#0c0414}
+#view-hobbies .v-top{background:linear-gradient(#0c0414 60%,transparent)}
+#view-hobbies .v-head h1{background:linear-gradient(90deg,#e879f9,#c084fc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.song-card{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid var(--line);margin-bottom:10px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s}
+.song-card:hover{border-color:rgba(192,132,252,.35)}
+.song-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.song-head strong{font-size:16px;font-weight:700;line-height:1.2}
+.song-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.song-tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:2px}
+.badge{padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted);white-space:nowrap}
+.badge.key{background:rgba(168,85,247,.16);color:#e9d5ff;border-color:rgba(168,85,247,.3)}
+.badge.bpm{background:rgba(34,211,238,.14);color:#a5f3fc;border-color:rgba(34,211,238,.28)}
+.badge[data-st="Por aprender"]{background:rgba(255,255,255,.08);color:var(--muted)}
+.badge[data-st="En proceso"]{background:rgba(251,191,36,.18);color:#fde047;border-color:rgba(251,191,36,.3)}
+.badge[data-st="Afinación"]{background:rgba(56,189,248,.18);color:#7dd3fc;border-color:rgba(56,189,248,.3)}
+.badge[data-st="Velocidad"]{background:rgba(249,115,22,.18);color:#fdba74;border-color:rgba(249,115,22,.3)}
+.badge[data-st="Completada"]{background:rgba(52,211,153,.18);color:#6ee7b7;border-color:rgba(52,211,153,.3)}
+.song-actions{display:flex;justify-content:space-between;align-items:center;padding-top:6px;border-top:1px solid rgba(255,255,255,.07)}
+
+/* --- UNIVERSIDAD --- */
 #view-uni{background:linear-gradient(#060a18,#03050c)}
 #view-uni .v-top{background:linear-gradient(#060a18 60%,transparent)}
 .grid-f{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:22px}
@@ -256,7 +276,7 @@ button{background:none;border:0;cursor:pointer;touch-action:manipulation}
 .fld.half{flex:1 1 calc(50% - 6px)}
 .fld>label,.fld>.fl{font-size:13px;color:var(--muted);font-weight:600}
 .fld input:not([type=radio]),.fld select,.fld textarea{width:100%;min-height:50px;padding:0 14px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:17px}
-.fld textarea{padding:12px 14px;min-height:140px;resize:vertical;line-height:1.5}
+.fld textarea{padding:12px 14px;min-height:100px;resize:vertical;line-height:1.5}
 .fld input:focus,.fld select:focus,.fld textarea:focus{outline:2px solid var(--ac);border-color:transparent}
 .fld.bad input,.fld.bad textarea{border-color:#ff7b7b}
 .seg-f{display:flex;gap:4px;padding:4px;background:rgba(255,255,255,.07);border-radius:14px;flex-wrap:wrap}
@@ -307,6 +327,11 @@ button{background:none;border:0;cursor:pointer;touch-action:manipulation}
       <svg class="i ico" viewBox="0 0 24 24"><path d="M12 7c-1-2-3-3-5-2.5C4.5 5.3 3.5 8 4 11c.6 4 3.2 8 5.5 8 1 0 1.5-.5 2.5-.5s1.5.5 2.5.5c2.3 0 4.9-4 5.5-8 .5-3-.5-5.7-3-6.5C15 4 13 5 12 7z"/><path d="M12 7c0-1.5.8-3 2.5-4"/></svg>
       <b>Nutrición</b><small data-m="nutrition"></small>
     </button>
+    <button class="orb" data-go="hobbies" style="--c:#c084fc;--rgb:192,132,252" aria-label="Hobbies">
+      <svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="t" cx="50" cy="50" r="48.5"/><circle class="p" cx="50" cy="50" r="48.5" pathLength="100"/></svg>
+      <svg class="i ico" viewBox="0 0 24 24"><circle cx="8" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M11 18V6l10-2v12M11 10l10-2"/></svg>
+      <b>Hobbies</b><small data-m="hobbies"></small>
+    </button>
     <button class="orb" data-go="uni" style="--c:#4f8dff;--rgb:79,141,255" aria-label="Universidad">
       <svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="t" cx="50" cy="50" r="48.5"/><circle class="p" cx="50" cy="50" r="48.5" pathLength="100"/></svg>
       <svg class="i ico" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg>
@@ -350,6 +375,19 @@ button{background:none;border:0;cursor:pointer;touch-action:manipulation}
     <div id="nutrition-body"></div>
   </div></div>
   <button class="fab" data-act="new-meal"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Comida</button>
+</section>
+
+<!-- ============ HOBBIES ============ -->
+<section class="view" id="view-hobbies" data-theme="hobbies" hidden aria-label="Hobbies e Instrumentos">
+  <div class="scroll"><div class="v-top"><div class="wrap bar">
+    <button class="pill" data-act="back"><svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Inicio</button>
+    <button class="icon-btn" data-act="manage-hobbies" aria-label="Gestionar hobbies e instrumentos"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
+  </div></div>
+  <div class="wrap">
+    <header class="v-head"><h1>Repertorio</h1><p>Práctica deliberada, piezas y sobrecarga musical.</p></header>
+    <div id="hobbies-body"></div>
+  </div></div>
+  <button class="fab" data-act="new-song"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Canción</button>
 </section>
 
 <!-- ============ UNIVERSIDAD ============ -->
@@ -405,12 +443,40 @@ const IC={
   back:'<path d="M15 5l-7 7 7 7"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   x:'<path d="M6 6l12 12M18 6L6 18"/>',flame:'<path d="M12 3c1 3 4 4.5 4 8.5a4 4 0 01-8 0c0-1.5.7-2.5 1.5-3.5.3 1 1 1.5 1.5 1.5 0-3-.5-4.5 1-6.5z"/>',
   more:'<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
-  link:'<path d="M7 17L17 7M9 7h8v8"/>',left:'<path d="M15 5l-7 7 7 7"/>',right:'<path d="M9 5l7 7-7 7"/>'
+  link:'<path d="M7 17L17 7M9 7h8v8"/>',left:'<path d="M15 5l-7 7 7 7"/>',right:'<path d="M9 5l7 7-7 7"/>',
+  music:'<circle cx="8" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M11 18V6l10-2v12M11 10l10-2"/>'
 };
-const ico=(n,s)=>`<svg class="i" viewBox="0 0 24 24"${s?` style="font-size:${s}px"`:''} aria-hidden="true">${IC[n]}</svg>`;
+const ico=(n,s)=>`<svg class="i" viewBox="0 0 24 24"${s?` style="font-size:${s}px"`:''} aria-hidden="true">${IC[n]||''}</svg>`;
+
+/* ====================== CATÁLOGO DE CANCIONES (BASE DE DATOS) ====================== */
+const SONG_CATALOG = [
+  // Acordeón / Vallenato
+  {title:'La Gota Fría',artist:'Carlos Vives / Emiliano Zuleta',genre:'Paseo',key:'Sol Mayor (G)',bpm:110,instrument:'Acordeón'},
+  {title:'Jaime Molina',artist:'Rafael Escalona',genre:'Paseo',key:'La Mayor (A)',bpm:85,instrument:'Acordeón'},
+  {title:'El Cantor de Fonseca',artist:'Carlos Huertas',genre:'Paseo',key:'Re Mayor (D)',bpm:92,instrument:'Acordeón'},
+  {title:'Mi Hermano y Yo',artist:'Los Hermanos Zuleta',genre:'Merengue',key:'Do Mayor (C)',bpm:125,instrument:'Acordeón'},
+  {title:'La Creciente',artist:'Binomio de Oro',genre:'Paseo',key:'Si Bemol (Bb)',bpm:88,instrument:'Acordeón'},
+  {title:'La Plata',artist:'Diomedes Díaz',genre:'Paseo',key:'Sol Mayor (G)',bpm:118,instrument:'Acordeón'},
+  {title:'Obsesión',artist:'Peter Manjarrés / Las Estrellas Vallenatas',genre:'Paseo',key:'Fa Mayor (F)',bpm:95,instrument:'Acordeón'},
+  {title:'Matilde Lina',artist:'Leandro Díaz',genre:'Paseo',key:'Sol Mayor (G)',bpm:90,instrument:'Acordeón'},
+  {title:'Sin Medir Distancias',artist:'Diomedes Díaz',genre:'Paseo',key:'Mi Mayor (E)',bpm:86,instrument:'Acordeón'},
+  {title:'Tierra de Cantores',artist:'Los Hermanos Zuleta',genre:'Merengue',key:'La Mayor (A)',bpm:128,instrument:'Acordeón'},
+  // Saxofón
+  {title:'Careless Whisper',artist:'George Michael',genre:'Pop / Balada',key:'Re menor (Dm)',bpm:76,instrument:'Saxofón'},
+  {title:'Baker Street',artist:'Gerry Rafferty',genre:'Rock',key:'Re Mayor (D)',bpm:116,instrument:'Saxofón'},
+  {title:'Autumn Leaves',artist:'Standard de Jazz',genre:'Jazz',key:'Sol menor (Gm)',bpm:120,instrument:'Saxofón'},
+  {title:'Pick Up the Pieces',artist:'Average White Band',genre:'Funk',key:'Fa menor (Fm)',bpm:108,instrument:'Saxofón'},
+  // Guitarra Eléctrica
+  {title:'Sultans of Swing',artist:'Dire Straits',genre:'Rock',key:'Re menor (Dm)',bpm:148,instrument:'Guitarra Eléctrica'},
+  {title:'Comfortably Numb',artist:'Pink Floyd',genre:'Rock Progresivo',key:'Si menor (Bm)',bpm:65,instrument:'Guitarra Eléctrica'},
+  {title:'Sweet Child O\' Mine',artist:'Guns N\' Roses',genre:'Hard Rock',key:'Re Bemol (Db)',bpm:125,instrument:'Guitarra Eléctrica'},
+  {title:'Hotel California',artist:'Eagles',genre:'Classic Rock',key:'Si menor (Bm)',bpm:75,instrument:'Guitarra Eléctrica'}
+];
 
 /* ====================== ESTADO Y PERSISTENCIA ====================== */
 const KEY='apex.v2';
+const SONG_STATUS=['Por aprender','En proceso','Afinación','Velocidad','Completada'];
+
 const defaults=()=>({v:2,name:'',
   gym:{goal:4,rest:90,effort:'RPE',marks:{},sessions:[],active:null,
     routines:{Push:['Press banca','Press militar','Fondos','Extensión de tríceps'],Pull:['Dominadas','Remo con barra','Curl de bíceps'],Legs:['Sentadilla','Peso muerto rumano','Prensa','Gemelos']}},
@@ -419,16 +485,28 @@ const defaults=()=>({v:2,name:'',
     {id:'h2',name:'Entrenar',slot:'afternoon',created:dkey(),log:{}},
     {id:'h3',name:'Skincare de noche',slot:'night',created:dkey(),log:{}}],sleep:{}},
   nutrition:{goals:{kcal:2400,p:160,c:260,f:70,water:3000},days:{}},
+  hobbies:{
+    instruments:[
+      {id:'i-aco',name:'Acordeón',detail:'Cinco Letras / GCF',songs:[
+        {id:'s1',title:'La Gota Fría',artist:'Carlos Vives / Emiliano Zuleta',genre:'Paseo',key:'Sol Mayor (G)',bpmTarget:110,bpmCurrent:90,status:'Velocidad',link:'',notes:'Cuidar el fuelleo y bajos'}
+      ]},
+      {id:'i-sax',name:'Saxofón',detail:'Alto en Mib',songs:[]},
+      {id:'i-gui',name:'Guitarra Eléctrica',detail:'Afinación estándar',songs:[]}
+    ]
+  },
   uni:{subjects:[],tasks:[]}
 });
+
 function hydrate(saved){
   const d=defaults();if(!saved||typeof saved!=='object')return d;
   return{...d,...saved,
     gym:{...d.gym,...(saved.gym||{})},
     habits:{...d.habits,...(saved.habits||{})},
     nutrition:{...d.nutrition,...(saved.nutrition||{}),goals:{...d.nutrition.goals,...((saved.nutrition||{}).goals||{})}},
+    hobbies:{...d.hobbies,...(saved.hobbies||{}),instruments:(saved.hobbies&&saved.hobbies.instruments)||d.hobbies.instruments},
     uni:{...d.uni,...(saved.uni||{})}};
 }
+
 let S;
 try{S=hydrate(JSON.parse(localStorage.getItem(KEY)))}catch{S=defaults()}
 let saveT;
@@ -438,10 +516,18 @@ addEventListener('pagehide',flush);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flush();else{renderAll();if(S.gym.active)wake()}});
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch{}
 
-const ui={split:Object.keys(S.gym.routines)[0]||'Push',gymMonth:0,slot:'all',tip:0,taskFilter:'all'};
+const ui={
+  split:Object.keys(S.gym.routines)[0]||'Push',
+  gymMonth:0,
+  slot:'all',
+  tip:0,
+  taskFilter:'all',
+  hobbyInst:S.hobbies.instruments[0]?S.hobbies.instruments[0].id:'all',
+  hobbyStatus:'all'
+};
 
 /* ====================== HOJA MODAL ====================== */
-const THEME_OF={gym:'gym',habits:'habits',nutrition:'nutrition',uni:'uni'};
+const THEME_OF={gym:'gym',habits:'habits',nutrition:'nutrition',hobbies:'hobbies',uni:'uni'};
 let sheetCfg=null,sheetT;
 function fieldHTML(f){
   const id='f-'+f.name,v=f.value??'';let ctl='';
@@ -485,7 +571,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;requestAnim
 
 /* ====================== NAVEGACIÓN ====================== */
 let current=null,origin={x:innerWidth/2,y:innerHeight/2};
-const RENDER={gym:()=>renderGym(),habits:()=>renderHabits(),nutrition:()=>renderNutrition(),uni:()=>renderUni()};
+const RENDER={gym:()=>renderGym(),habits:()=>renderHabits(),nutrition:()=>renderNutrition(),hobbies:()=>renderHobbies(),uni:()=>renderUni()};
 const radius=(x,y)=>Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));
 function openView(id,instant){
   const v=$('#view-'+id);if(!v)return;
@@ -510,16 +596,19 @@ function refreshLanding(){
   $('#l-greet').textContent=(h<6?'Buenas noches':h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches')+n;
   $('#l-date').textContent=cap(new Date().toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'}));
   const m=metrics();
-  $$('[data-m]').forEach(el=>{const k=el.dataset.m;el.textContent=m[k].t;
-    const p=$('.p',el.closest('.orb'));requestAnimationFrame(()=>requestAnimationFrame(()=>{p.style.strokeDasharray=`${Math.max(0,Math.min(1,m[k].p))*100} 100`}))});
+  $$('[data-m]').forEach(el=>{const k=el.dataset.m;if(!m[k])return;el.textContent=m[k].t;
+    const p=$('.p',el.closest('.orb'));requestAnimationFrame(()=>requestAnimationFrame(()=>{if(p)p.style.strokeDasharray=`${Math.max(0,Math.min(1,m[k].p))*100} 100`}))});
 }
 function metrics(){
   const today=dkey(),hs=S.habits.list,done=hs.filter(h=>h.log[today]).length;
   const wk=weekCount(),goal=S.gym.goal||4,nt=mealTotals(today),tasks=S.uni.tasks,open=tasks.filter(t=>t.status!=='Entregado');
+  const allSongs=(S.hobbies.instruments||[]).flatMap(i=>i.songs||[]);
+  const compSongs=allSongs.filter(s=>s.status==='Completada').length;
   return{
     gym:{p:wk/goal,t:S.gym.active?'Entreno en curso':`${wk} de ${goal} esta semana`},
     habits:{p:hs.length?done/hs.length:0,t:hs.length?`${done} de ${hs.length} hoy`:'Crea el primero'},
     nutrition:{p:nt.kcal/S.nutrition.goals.kcal,t:`${fmt(nt.kcal)} kcal`},
+    hobbies:{p:allSongs.length?compSongs/allSongs.length:0,t:allSongs.length?`${compSongs}/${allSongs.length} temas listos`:'Sin repertorio'},
     uni:{p:tasks.length?(tasks.length-open.length)/tasks.length:0,t:open.length?`${open.length} ${open.length===1?'entrega':'entregas'}`:tasks.length?'Todo entregado':'Sin entregas'}
   };
 }
@@ -578,7 +667,7 @@ function exHTML(ex){
 }
 function calendarHTML(){
   const base=new Date(),d0=new Date(base.getFullYear(),base.getMonth()+ui.gymMonth,1),y=d0.getFullYear(),mo=d0.getMonth();
-  const days=new Date(y,mo+1,0).getDate(),lead=(d0.getDay()+6)%7,set=gymDays(),today=dkey(),sessDates=new Set(S.gym.sessions.map(s=>s.date));
+  const days=new Date(y,mo+1,0).getDate(),lead=(d0.getDay()+6)%7,set=gymDays(),today=dkey();
   let cells='',cnt=0;for(let i=0;i<lead;i++)cells+='<span></span>';
   for(let d=1;d<=days;d++){const k=`${y}-${pad(mo+1)}-${pad(d)}`,on=set.has(k);if(on)cnt++;
     cells+=`<button class="dot ${on?'on':''} ${k===today?'today':''}" data-act="day" data-k="${k}" ${k>today?'disabled':''} aria-pressed="${on}" aria-label="${d} de ${d0.toLocaleDateString('es',{month:'long'})}: ${on?'entrenaste':'sin registro'}">${d}</button>`}
@@ -705,6 +794,168 @@ function mealSheet(id){
       if(m)d.meals=d.meals.map(x=>x.id===m.id?rec:x);else d.meals.push(rec);save();renderAll()}});
 }
 
+/* ====================== HOBBIES & INSTRUMENTOS ====================== */
+function currentInstrument(){
+  const list=S.hobbies.instruments||[];
+  if(!list.length)return null;
+  return list.find(i=>i.id===ui.hobbyInst)||list[0];
+}
+
+function renderHobbies(){
+  const insts=S.hobbies.instruments||[];
+  if(!insts.length){
+    $('#hobbies-body').innerHTML=`<div class="empty">No tienes ningún hobby o instrumento configurado.<br><br><button class="btn primary" data-act="new-inst">Crear instrumento o hobby</button></div>`;
+    return;
+  }
+  const cur=currentInstrument();
+  if(!cur)return;
+  if(ui.hobbyInst!==cur.id)ui.hobbyInst=cur.id;
+
+  const songs=cur.songs||[];
+  const comp=songs.filter(s=>s.status==='Completada').length;
+  const pct=songs.length?Math.round((comp/songs.length)*100):0;
+  const filtered=songs.filter(s=>ui.hobbyStatus==='all'||s.status===ui.hobbyStatus);
+
+  let h=`<section class="card sum"><div class="rings">${ringsSVG([{r:80,s:18,c:'#c084fc',p:songs.length?comp/songs.length:0}],`${comp} de ${songs.length} completadas`)}<div class="rings-c"><b>${pct}%</b></div></div>
+    <div><h3>${esc(cur.name)}</h3><p class="muted">${esc(cur.detail||'Sin especificación')}</p><p style="margin-top:4px"><b>${comp}</b> de <b>${songs.length}</b> en repertorio</p></div></section>
+  
+  <div class="card-h" style="margin-bottom:6px"><h3>Instrumento</h3><button class="btn quiet sm" data-act="edit-inst" data-id="${cur.id}">Ajustes</button></div>
+  <div class="seg" style="margin-bottom:14px" role="radiogroup" aria-label="Instrumento o hobby">
+    ${insts.map(i=>`<button class="seg-b ${i.id===cur.id?'on':''}" data-act="pick-inst" data-v="${i.id}" role="radio" aria-checked="${i.id===cur.id}">${esc(i.name)}</button>`).join('')}
+    <button class="seg-b" data-act="new-inst" aria-label="Añadir instrumento">${ico('plus')}</button>
+  </div>
+
+  <div class="card-h" style="margin-bottom:6px"><h3>Estado de estudio</h3></div>
+  <div class="seg tight" style="margin-bottom:14px" role="radiogroup" aria-label="Filtrar por estado">
+    ${[['all','Todas'],...SONG_STATUS.map(s=>[s,s])].map(([k,l])=>{
+      const cnt=k==='all'?songs.length:songs.filter(s=>s.status===k).length;
+      return`<button class="seg-b ${ui.hobbyStatus===k?'on':''}" data-act="song-filter" data-v="${k}" role="radio" aria-checked="${ui.hobbyStatus===k}">${l} ${cnt}</button>`;
+    }).join('')}
+  </div>`;
+
+  if(!filtered.length){
+    h+=`<div class="empty">${songs.length?'No hay canciones con este estado.':'Tu repertorio está vacío.'}<br>Toca + para añadir tu primera canción.</div>`;
+  }else{
+    filtered.forEach(s=>{
+      const bpmProg = s.bpmTarget ? `${s.bpmCurrent||'—'}/${s.bpmTarget} BPM` : (s.bpmCurrent?`${s.bpmCurrent} BPM`:'');
+      h+=`<article class="song-card">
+        <div class="song-head">
+          <div>
+            <strong>${esc(s.title)}</strong>
+            <div class="song-meta">${s.artist?`<span>${esc(s.artist)}</span>`:''}${s.genre?`<span>• ${esc(s.genre)}</span>`:''}</div>
+          </div>
+          <button class="badge" data-st="${s.status}" data-act="cycle-song" data-id="${s.id}" aria-label="Estado: ${s.status}. Toca para avanzar">${esc(s.status)}</button>
+        </div>
+        <div class="song-tags">
+          ${s.key?`<span class="badge key">${esc(s.key)}</span>`:''}
+          ${bpmProg?`<span class="badge bpm">${esc(bpmProg)}</span>`:''}
+          ${s.link?`<a href="${esc(safeUrl(s.link))}" target="_blank" rel="noopener noreferrer" class="badge" style="color:#c084fc">Audio ${ico('link')}</a>`:''}
+        </div>
+        ${s.notes?`<p class="muted" style="font-size:12.5px;line-height:1.4">${esc(s.notes)}</p>`:''}
+        <div class="song-actions">
+          <div class="row2" style="gap:4px">
+            <button class="btn quiet sm" style="padding:0 8px" data-act="bpm-step" data-id="${s.id}" data-d="-5" title="Bajar 5 BPM">−5</button>
+            <button class="btn quiet sm" style="padding:0 8px" data-act="bpm-step" data-id="${s.id}" data-d="5" title="Subir 5 BPM">+5</button>
+          </div>
+          <button class="btn quiet sm" data-act="edit-song" data-id="${s.id}">Editar</button>
+        </div>
+      </article>`;
+    });
+  }
+  $('#hobbies-body').innerHTML=h;
+  animateRings($('#hobbies-body'));
+}
+
+function songSheet(id){
+  const cur=currentInstrument();if(!cur)return;
+  const s=id?(cur.songs||[]).find(x=>x.id===id):null;
+  const titles=SONG_CATALOG.map(x=>x.title);
+
+  openSheet({
+    title:s?'Editar canción':'Añadir canción al repertorio',
+    submit:s?'Guardar':'Añadir',
+    fields:[
+      {name:'title',label:'Título de la canción',type:'text',required:true,value:s?s.title:'',placeholder:'Ej. La Gota Fría',list:titles},
+      {name:'artist',label:'Artista o compositor',type:'text',value:s?s.artist:'',placeholder:'Ej. Carlos Vives'},
+      {name:'genre',label:'Ritmo o Aire',type:'text',half:true,value:s?s.genre:'',placeholder:'Ej. Paseo, Merengue, Rock'},
+      {name:'key',label:'Tonalidad / Hilera',type:'text',half:true,value:s?s.key:'',placeholder:'Ej. Sol Mayor (G), 5 Letras'},
+      {name:'bpmCurrent',label:'BPM Actual',type:'number',half:true,value:s?(s.bpmCurrent||''):'',placeholder:'Ej. 90'},
+      {name:'bpmTarget',label:'BPM Objetivo',type:'number',half:true,value:s?(s.bpmTarget||''):'',placeholder:'Ej. 110'},
+      {name:'status',label:'Estado',type:'seg',options:SONG_STATUS.map(x=>[x,x]),value:s?s.status:'Por aprender'},
+      {name:'link',label:'Enlace a video, tablatura o audio',type:'url',value:s?s.link:'',placeholder:'https://...'},
+      {name:'notes',label:'Apuntes técnicos / digitación',type:'textarea',value:s?s.notes:'',placeholder:'Detalles del fuelleo, adornos, escala o solo...'}
+    ],
+    onMount(form){
+      const inTitle=$('#f-title',form);
+      if(inTitle){
+        inTitle.addEventListener('input',()=>{
+          const match=SONG_CATALOG.find(x=>x.title.toLowerCase()===inTitle.value.trim().toLowerCase());
+          if(match){
+            const inArt=$('#f-artist',form),inGen=$('#f-genre',form),inKey=$('#f-key',form),inBpmT=$('#f-bpmTarget',form);
+            if(inArt&&!inArt.value)inArt.value=match.artist;
+            if(inGen&&!inGen.value)inGen.value=match.genre;
+            if(inKey&&!inKey.value)inKey.value=match.key;
+            if(inBpmT&&!inBpmT.value)inBpmT.value=match.bpm;
+          }
+        });
+      }
+    },
+    danger:s?{label:'Eliminar',fn:()=>{
+      cur.songs=cur.songs.filter(x=>x.id!==s.id);
+      save();closeSheet();renderAll();
+    }}:null,
+    onSubmit(v){
+      const rec={
+        id:s?s.id:uid(),
+        title:v.title.trim(),
+        artist:v.artist.trim(),
+        genre:v.genre.trim(),
+        key:v.key.trim(),
+        bpmCurrent:v.bpmCurrent?num(v.bpmCurrent):'',
+        bpmTarget:v.bpmTarget?num(v.bpmTarget):'',
+        status:v.status,
+        link:safeUrl(v.link),
+        notes:v.notes.trim()
+      };
+      if(!cur.songs)cur.songs=[];
+      if(s)Object.assign(s,rec);else cur.songs.push(rec);
+      save();renderAll();
+    }
+  });
+}
+
+function instSheet(id){
+  const list=S.hobbies.instruments||[];
+  const item=id?list.find(x=>x.id===id):null;
+  openSheet({
+    title:item?'Editar hobby o instrumento':'Nuevo hobby o instrumento',
+    submit:item?'Guardar':'Crear',
+    fields:[
+      {name:'name',label:'Nombre',type:'text',required:true,value:item?item.name:'',placeholder:'Ej. Acordeón, Lectura, Saxofón'},
+      {name:'detail',label:'Detalle o afinación',type:'text',value:item?item.detail:'',placeholder:'Ej. Cinco Letras / GCF, Alto en Mib...'}
+    ],
+    danger:(item&&list.length>1)?{label:'Eliminar',fn:()=>{
+      closeSheet();
+      confirmSheet('¿Eliminar instrumento?',`"${item.name}" y todo su repertorio se borrarán permanentemente.`,'Eliminar',()=>{
+        S.hobbies.instruments=S.hobbies.instruments.filter(x=>x.id!==item.id);
+        ui.hobbyInst=S.hobbies.instruments[0]?S.hobbies.instruments[0].id:'all';
+        save();renderAll();
+      });
+    }}:null,
+    onSubmit(v){
+      if(item){
+        item.name=v.name.trim();
+        item.detail=v.detail.trim();
+      }else{
+        const newI={id:uid(),name:v.name.trim(),detail:v.detail.trim(),songs:[]};
+        S.hobbies.instruments.push(newI);
+        ui.hobbyInst=newI.id;
+      }
+      save();renderAll();
+    }
+  });
+}
+
 /* ====================== UNIVERSIDAD ====================== */
 const STATUS=['Pendiente','En proceso','Entregado'];
 function dueInfo(k){if(!k)return{t:'Sin fecha',c:''};const diff=Math.round((parseKey(k)-parseKey(dkey()))/864e5),lab=parseKey(k).toLocaleDateString('es',{day:'numeric',month:'short'});
@@ -718,7 +969,7 @@ function renderUni(){
     <div class="links">${dr?`<a class="lk" href="${esc(dr)}" target="_blank" rel="noopener noreferrer">Drive ${ico('link')}</a>`:''}${nt?`<a class="lk" href="${esc(nt)}" target="_blank" rel="noopener noreferrer">Apuntes ${ico('link')}</a>`:''}</div></div>`}).join('')}
     <button class="fold new" data-act="new-subject">${ico('plus')}Nueva carpeta</button></div>`;
   const cnt=k=>U.tasks.filter(t=>k==='all'||t.status===k).length;
-  h+=`<div class="sec-h"><h2>Entregas</h2></div><div class="seg tight" role="radiogroup" aria-label="Filtrar por estado">${[['all','Todas'],...STATUS.map(s=>[s,s])].map(([k,l])=>`<button class="seg-b ${ui.taskFilter===k?'on':''}" data-act="task-filter" data-v="${k}" role="radio" aria-checked="${ui.taskFilter===k}">${l} ${cnt(k)}</button>`).join('')}</div>`;
+  h+=`<div class="sec-h"><h2>Entregas</h2></div><div class="seg tight" role="radiogroup" aria-label="Filtrar por estado">${[['all','Todas'],...STATUS.map(s=>[s,s])].map(([k,l])=>`<button class="seg-b ${ui.taskFilter===k?'on':''}" data-act="task-filter" data-v="${k}" role="radio" aria-checked="${ui.taskFilter===k}">${l}${cnt(k)}</button>`).join('')}</div>`;
   const tasks=U.tasks.filter(t=>ui.taskFilter==='all'||t.status===ui.taskFilter).sort((a,b)=>(a.status==='Entregado')-(b.status==='Entregado')||(a.due||'9999').localeCompare(b.due||'9999'));
   h+=tasks.length?`<div class="list">${tasks.map(t=>{const di=dueInfo(t.due),sub=U.subjects.find(s=>s.id===t.subject),dn=t.status==='Entregado';
     return`<div class="t-row ${dn?'done':''}"><button class="t-main" data-act="edit-task" data-id="${t.id}"><strong>${esc(t.title)}</strong><div class="t-meta">${sub?`<span>${esc(sub.name)}</span>`:''}<span class="due ${dn?'':di.c}">${dn?'Entregada':di.t}</span></div></button>
@@ -781,7 +1032,7 @@ const A={
   'sheet-danger'(){sheetCfg&&sheetCfg.danger&&sheetCfg.danger.fn()},
   settings(){settingsSheet()},export(){exportData()},import(){$('#import-file').click()},
   install(){if(deferredInstall){deferredInstall.prompt();deferredInstall=null;closeSheet()}},
-  reset(){closeSheet(true);setTimeout(()=>confirmSheet('¿Borrar todo?','Esta acción elimina gym, hábitos, nutrición y universidad de este dispositivo.','Borrar todo',()=>{S=defaults();flush();hideRest();unwake();renderAll();toast('Datos borrados')}),60)},
+  reset(){closeSheet(true);setTimeout(()=>confirmSheet('¿Borrar todo?','Esta acción elimina gym, hábitos, nutrición, hobbies y universidad de este dispositivo.','Borrar todo',()=>{S=defaults();flush();hideRest();unwake();renderAll();toast('Datos borrados')}),60)},
   /* gym */
   'pick-split'(d){ui.split=d.v;renderGym()},
   'add-split'(){openSheet({title:'Nueva división',submit:'Crear',fields:[{name:'name',label:'Nombre',type:'text',required:true,placeholder:'Ej. Brazos'}],
@@ -826,6 +1077,29 @@ const A={
     fields:[{name:'kcal',label:'Calorías (kcal)',type:'number',half:true,value:g.kcal},{name:'water',label:'Agua (ml)',type:'number',half:true,value:g.water},
       {name:'p',label:'Proteína (g)',type:'number',half:true,value:g.p},{name:'c',label:'Carbohidratos (g)',type:'number',half:true,value:g.c},{name:'f',label:'Grasas (g)',type:'number',half:true,value:g.f}],
     onSubmit(v){const n=(x,d)=>Math.max(1,Math.round(num(x))||d);S.nutrition.goals={kcal:n(v.kcal,2400),water:n(v.water,3000),p:n(v.p,160),c:n(v.c,260),f:n(v.f,70)};save();renderAll()}})},
+  /* hobbies */
+  'pick-inst'(d){ui.hobbyInst=d.v;renderHobbies()},
+  'new-inst'(){instSheet()},
+  'edit-inst'(d){instSheet(d.id)},
+  'manage-hobbies'(){instSheet(ui.hobbyInst)},
+  'song-filter'(d){ui.hobbyStatus=d.v;renderHobbies()},
+  'new-song'(){songSheet()},
+  'edit-song'(d){songSheet(d.id)},
+  'cycle-song'(d){
+    const cur=currentInstrument();if(!cur)return;
+    const song=(cur.songs||[]).find(s=>s.id===d.id);if(!song)return;
+    const nextIdx=(SONG_STATUS.indexOf(song.status)+1)%SONG_STATUS.length;
+    song.status=SONG_STATUS[nextIdx];
+    haptic(12);save();renderAll();
+  },
+  'bpm-step'(d){
+    const cur=currentInstrument();if(!cur)return;
+    const song=(cur.songs||[]).find(s=>s.id===d.id);if(!song)return;
+    let b=num(song.bpmCurrent)||(num(song.bpmTarget)||100);
+    b=Math.max(30,Math.min(300,b+ +d.d));
+    song.bpmCurrent=b;
+    haptic(8);save();renderHobbies();
+  },
   /* universidad */
   'new-subject'(){subjectSheet()},'edit-subject'(d){subjectSheet(d.id)},'new-task'(){taskSheet()},'edit-task'(d){taskSheet(d.id)},
   'task-filter'(d){ui.taskFilter=d.v;renderUni()},
@@ -835,7 +1109,7 @@ function sessionSheet(id){
   const s=S.gym.sessions.find(x=>x.id===id);if(!s)return;
   openSheet({title:`${s.split}, ${dayLabel(s.date)}`,theme:'gym',focus:false,
     text:`${fmt(volume(s))} kg de volumen en ${s.mins} min${s.prs&&s.prs.length?`. Récord en ${s.prs.join(', ')}.`:''}`,
-    html:s.exercises.map(e=>`<div class="sx-ex"><b>${esc(e.name)}</b>${e.sets.map((x,i)=>`<span>${i+1}. ${esc(x.kg)} kg × ${esc(x.reps)}${x.rpe?` (${EFFORT()} ${esc(x.rpe)})`:''}</span>`).join('')}</div>`).join(''),
+    html:s.exercises.map(e=>`<div class="sx-ex"><b>${esc(e.name)}</b>${e.sets.map((x,i)=>`<span>${i+1}.${esc(x.kg)} kg × ${esc(x.reps)}${x.rpe?` (${EFFORT()} ${esc(x.rpe)})`:''}</span>`).join('')}</div>`).join(''),
     danger:{label:'Eliminar entreno',fn:()=>{closeSheet();confirmSheet('¿Eliminar entreno?','Se borra del historial y del calendario.','Eliminar',()=>{S.gym.sessions=S.gym.sessions.filter(x=>x.id!==id);save();renderAll()})}}});
 }
 document.addEventListener('click',e=>{
