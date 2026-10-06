@@ -1,0 +1,31 @@
+{
+  "name": "apex-life-os",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Apex: tu sistema personal para gym, hábitos, nutrición, hobbies y universidad.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "immer": "^11.1.0",
+    "next": "^16.3.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@serwist/next": "^9.5.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "^9.30.0",
+    "eslint-config-next": "^16.3.0",
+    "serwist": "^9.5.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.9.0"
+  }
+}

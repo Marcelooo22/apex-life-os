@@ -1,0 +1,29 @@
+/* --- HÁBITOS --- */
+#view-habits{background:radial-gradient(90% 46% at 50% -8%,rgba(52,245,164,.2),transparent 62%),#010b07}
+#view-habits .v-top{background:linear-gradient(#010b07 60%,transparent)}
+#view-habits .v-head h1{font-weight:700}
+.sum{display:flex;align-items:center;gap:18px}
+.sum .rings{width:104px;margin:0;flex:none}
+.sum .rings-c b{font-size:22px}
+.sum h3{font-size:22px;letter-spacing:-.02em}
+.sum p{color:var(--muted);margin-top:2px}
+.coach{background:linear-gradient(160deg,rgba(52,245,164,.15),rgba(52,245,164,.03));border-color:rgba(52,245,164,.3)}
+.coach h4{font-size:16px;font-weight:700}
+.coach p{margin-top:6px;line-height:1.5;color:#d6f7e8}
+.coach .src{font-size:12px;color:#7fcfae;margin-bottom:8px;display:block}
+.sleep{margin-top:14px;padding-top:14px;border-top:1px solid rgba(52,245,164,.18)}
+.sleep>span{display:block;font-size:13px;color:#a7e9cc;margin-bottom:8px}
+.sleep .chips{flex-wrap:nowrap;gap:6px}.sleep .chip{flex:1;padding:0 4px;min-width:0}
+.h-row{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;padding:14px;border-radius:28px;background:rgba(255,255,255,.045);border:1px solid var(--line);margin-bottom:10px;transition:background .4s var(--ease),border-color .4s}
+.h-row.done{background:rgba(52,245,164,.09);border-color:rgba(52,245,164,.38)}
+.h-check{width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.26);display:grid;place-items:center;font-size:26px;color:transparent;transition:background .3s,border-color .3s}
+.h-row.done .h-check{background:var(--btn);border-color:transparent;color:var(--ink);box-shadow:0 0 24px rgba(52,245,164,.5);animation:pop .45s var(--ease)}
+@keyframes pop{0%{scale:.8}60%{scale:1.14}100%{scale:1}}
+.h-main{min-width:0;text-align:left;min-height:52px}
+.h-main strong{display:block;font-size:16px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.h-meta{display:flex;gap:10px;align-items:center;margin-top:3px;font-size:13px;color:var(--muted)}
+.flame{display:inline-flex;gap:3px;align-items:center;color:#ffb86b}.flame .i{font-size:16px}
+.week{display:flex;gap:5px;margin-top:8px}
+.week i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.12)}
+.week i.on{background:var(--ac)}.week i.t{outline:1.5px solid rgba(255,255,255,.55);outline-offset:1.5px}
+.h-pct{text-align:right}.h-pct b{display:block;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}.h-pct small{font-size:11px;color:var(--muted)}

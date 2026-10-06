@@ -1,0 +1,19 @@
+/* --- HOBBIES: violeta & neón musical --- */
+#view-hobbies{background:radial-gradient(90% 46% at 50% -8%,rgba(168,85,247,.22),transparent 64%),#0c0414}
+#view-hobbies .v-top{background:linear-gradient(#0c0414 60%,transparent)}
+#view-hobbies .v-head h1{background:linear-gradient(90deg,#e879f9,#c084fc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.song-card{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid var(--line);margin-bottom:10px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s}
+.song-card:hover{border-color:rgba(192,132,252,.35)}
+.song-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.song-head strong{font-size:16px;font-weight:700;line-height:1.2}
+.song-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.song-tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:2px}
+.badge{padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted);white-space:nowrap}
+.badge.key{background:rgba(168,85,247,.16);color:#e9d5ff;border-color:rgba(168,85,247,.3)}
+.badge.bpm{background:rgba(34,211,238,.14);color:#a5f3fc;border-color:rgba(34,211,238,.28)}
+.badge[data-st="Por aprender"]{background:rgba(255,255,255,.08);color:var(--muted)}
+.badge[data-st="En proceso"]{background:rgba(251,191,36,.18);color:#fde047;border-color:rgba(251,191,36,.3)}
+.badge[data-st="Afinación"]{background:rgba(56,189,248,.18);color:#7dd3fc;border-color:rgba(56,189,248,.3)}
+.badge[data-st="Velocidad"]{background:rgba(249,115,22,.18);color:#fdba74;border-color:rgba(249,115,22,.3)}
+.badge[data-st="Completada"]{background:rgba(52,211,153,.18);color:#6ee7b7;border-color:rgba(52,211,153,.3)}
+.song-actions{display:flex;justify-content:space-between;align-items:center;padding-top:6px;border-top:1px solid rgba(255,255,255,.07)}

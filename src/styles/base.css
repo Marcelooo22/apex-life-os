@@ -1,0 +1,23 @@
+:root{
+  --text:#f5f5f7;--muted:#9a9aa1;--line:rgba(255,255,255,.12);
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;background:#000}
+body{font:15px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",system-ui,"Segoe UI",Roboto,sans-serif;color:var(--text);background:#000;min-height:100vh;min-height:100dvh;overscroll-behavior-y:none;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;touch-action:manipulation}
+[hidden]{display:none!important}
+.muted{color:var(--muted)}
+.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+:focus-visible{outline:2px solid var(--ac,#fff);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ================= TEMAS POR SECCIÓN ================= */
+[data-theme=none]{--ac:#fff;--btn:#f5f5f7;--ink:#000;--r:22px}
+[data-theme=gym]{--ac:#ff6a2b;--btn:#ff6a2b;--ink:#1a0800;--vbg:#0a0a0a;--r:14px;--card:rgba(255,255,255,.045)}
+[data-theme=habits]{--ac:#34f5a4;--btn:#34f5a4;--ink:#00160c;--vbg:#010b07;--r:28px}
+[data-theme=nutrition]{--ac:#22d3ee;--btn:#22d3ee;--ink:#001419;--vbg:#00080b;--r:22px}
+[data-theme=hobbies]{--ac:#c084fc;--btn:#a855f7;--ink:#10031d;--vbg:#0c0414;--r:20px}
+[data-theme=uni]{--ac:#6aa3ff;--btn:#2563eb;--ink:#fff;--vbg:#05070f;--r:14px}

@@ -1,0 +1,52 @@
+"use client";
+
+import { Icon } from "@/components/ui/icon";
+import { useAppState } from "@/hooks/use-app-state";
+import { useNavigation } from "@/hooks/use-navigation";
+import { useToday } from "@/hooks/use-time-key";
+import { longDate } from "@/lib/dates";
+import { landingMetrics } from "@/lib/metrics";
+import { Orb, type OrbConfig } from "./orb";
+import { useSettingsSheet } from "./settings-sheet";
+
+const ORBS: readonly OrbConfig[] = [
+  { id: "gym", label: "Gym", icon: "dumbbell", color: "#ff6a2b", rgb: "255,106,43" },
+  { id: "habits", label: "Hábitos", icon: "habits", color: "#34f5a4", rgb: "52,245,164" },
+  { id: "nutrition", label: "Nutrición", icon: "nutrition", color: "#22d3ee", rgb: "34,211,238" },
+  { id: "hobbies", label: "Hobbies", icon: "music", color: "#c084fc", rgb: "192,132,252" },
+  { id: "uni", label: "Universidad", icon: "uni", color: "#4f8dff", rgb: "79,141,255" },
+];
+
+const greeting = (hour: number) => (hour < 6 ? "Buenas noches" : hour < 12 ? "Buenos días" : hour < 19 ? "Buenas tardes" : "Buenas noches");
+
+/** Pantalla de inicio: saludo y burbujas hacia cada sección. */
+export function Landing() {
+  const state = useAppState();
+  const { hour } = useToday();
+  const { view, open } = useNavigation();
+  const openSettings = useSettingsSheet();
+  const metrics = landingMetrics(state);
+
+  return (
+    <main id="landing" className="landing" data-theme="none" inert={view !== null}>
+      <div className="l-top">
+        <button type="button" className="icon-btn" onClick={openSettings} aria-label="Ajustes y copia de seguridad">
+          <Icon name="sliders" />
+        </button>
+      </div>
+      <header className="l-head">
+        <p className="l-date">{longDate()}</p>
+        <h1>
+          {greeting(hour)}
+          {state.name ? `, ${state.name}` : ""}
+        </h1>
+        <p className="l-sub">¿A dónde vas hoy?</p>
+      </header>
+      <nav className="orbs" aria-label="Secciones">
+        {ORBS.map((orb) => (
+          <Orb key={orb.id} {...orb} metric={metrics[orb.id]} onOpen={open} />
+        ))}
+      </nav>
+    </main>
+  );
+}
