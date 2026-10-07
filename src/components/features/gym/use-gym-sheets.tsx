@@ -13,6 +13,8 @@ import { getState, updateState } from "@/lib/store";
 import { toast } from "@/lib/toast";
 import { cn, fmt, num } from "@/lib/utils";
 import { ExercisePicker, parsePicks } from "./exercise-picker";
+import { exerciseFrames } from "@/lib/exercise-images";
+import { ExerciseAnim } from "./exercise-anim";
 
 /** Hojas modales de la sección Gym. */
 export function useGymSheets() {
@@ -151,6 +153,7 @@ export function useGymSheets() {
           focus: false,
           children: ex ? (
             <div className="help">
+                {exerciseFrames(ex.id) && <ExerciseAnim frames={exerciseFrames(ex.id)!} />}
               <div className="help-bm">
                 <BodyMap sex={sex} fills={fills} label={`Músculos que trabaja: ${ex.zones.map((z) => ZONE_LABEL[z]).join(", ")}`} />
               </div>
