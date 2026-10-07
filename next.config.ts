@@ -27,6 +27,8 @@ const withSerwist = withSerwistInit({
     { url: "/", revision: buildRevision },
     { url: "/manifest.webmanifest", revision: buildRevision },
     ...iconEntries,
+    // Tipografía serif de Universidad: disponible sin conexión desde la primera visita.
+    { url: "/fonts/newsreader-latin.woff2", revision: buildRevision },
   ],
   disable: process.env.NODE_ENV === "development",
 });
