@@ -1,26 +1,33 @@
 "use client";
 
 import { useState } from "react";
+import { BodyMap } from "@/components/ui/body-map";
 import { Icon } from "@/components/ui/icon";
+import { InfoTip } from "@/components/ui/info-tip";
 import { RadarChart } from "@/components/ui/radar-chart";
 import { Rings } from "@/components/ui/rings";
 import { Segmented } from "@/components/ui/segmented";
 import { useToday } from "@/hooks/use-time-key";
 import { dayLabel } from "@/lib/dates";
-import { medalOf, muscleLoad, personalRecords, weekSummary } from "@/lib/gym";
+import { loadLevel, RECOVERY_LABEL, recoveryOf, zoneLoads, type Recovery } from "@/lib/body";
+import { ZONE_LABEL, type Zone } from "@/lib/exercises";
+import { medalOf, muscleLoad, muscleOf, personalRecords, weekSummary } from "@/lib/gym";
 import type { GymState } from "@/lib/types";
 import { fmt } from "@/lib/utils";
+import { bmiOf } from "./gym-body";
 
 interface LeftProps {
   gym: GymState;
   split: string;
   onStart: () => void;
+  onBody: () => void;
 }
 
-/** Columna izquierda: resumen de la semana y el botón principal. */
-export function GymLeft({ gym, split, onStart }: LeftProps) {
+/** Columna izquierda: resumen de la semana, botón principal y un vistazo a tu cuerpo. */
+export function GymLeft({ gym, split, onStart, onBody }: LeftProps) {
   const { today } = useToday();
   const w = weekSummary(gym, new Date(today + "T00:00:00"));
+  const last = [...gym.body].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
   return (
     <>
       <section className="card">
@@ -38,18 +45,9 @@ export function GymLeft({ gym, split, onStart }: LeftProps) {
           </div>
         </div>
         <dl className="kv">
-          <div>
-            <dt>Volumen acumulado</dt>
-            <dd>{fmt(w.volume)} kg</dd>
-          </div>
-          <div>
-            <dt>Sesiones</dt>
-            <dd>{w.sessions}</dd>
-          </div>
-          <div>
-            <dt>Tiempo entrenado</dt>
-            <dd>{w.mins} min</dd>
-          </div>
+          <div><dt>Volumen acumulado <InfoTip term="volumen" /></dt><dd>{fmt(w.volume)} kg</dd></div>
+          <div><dt>Sesiones</dt><dd>{w.sessions}</dd></div>
+          <div><dt>Tiempo entrenado</dt><dd>{w.mins} min</dd></div>
         </dl>
       </section>
       <button type="button" className="btn primary big g-cta" onClick={onStart}>
@@ -57,18 +55,70 @@ export function GymLeft({ gym, split, onStart }: LeftProps) {
         {gym.active ? "Continuar entrenamiento" : "Iniciar entrenamiento"}
       </button>
       {!gym.active && <p className="muted g-cta-sub">Empezarás con {split}.</p>}
+      <button type="button" className="card body-mini" onClick={onBody}>
+        <span className="muted">Mi cuerpo</span>
+        {last ? (
+          <b>
+            {last.weight.toLocaleString("es")} kg
+            {gym.profile.height ? <small> · IMC {bmiOf(last.weight, gym.profile.height).toLocaleString("es", { maximumFractionDigits: 1 })}</small> : null}
+          </b>
+        ) : (
+          <b>Registrar mi peso</b>
+        )}
+      </button>
     </>
   );
 }
 
-/** Columna derecha: récords personales y reparto del volumen por grupo muscular. */
+const REC_COLOR: Record<Recovery, string> = { rest: "#ef4444", recovering: "#f59e0b", ready: "#34d399", idle: "#3f3f46" };
+
+/** Mapa del cuerpo: carga de los últimos 7 días o estado de recuperación de cada zona. */
+function BodyCard({ gym, today }: { gym: GymState; today: string }) {
+  const [mode, setMode] = useState<"load" | "recovery">("recovery");
+  const now = new Date(today + "T00:00:00");
+  const loads = zoneLoads(gym, now, 7, muscleOf);
+  const fills: Partial<Record<Zone, string>> = {};
+  const titles: Partial<Record<Zone, string>> = {};
+  for (const l of loads) {
+    const rec = recoveryOf(l);
+    fills[l.zone] = mode === "load" ? (l.sets > 0 ? `rgba(255,${Math.round(150 - loadLevel(l) * 100)},30,${0.25 + loadLevel(l) * 0.7})` : "rgba(255,255,255,.07)") : rec === "idle" ? "rgba(255,255,255,.07)" : `${REC_COLOR[rec]}cc`;
+    titles[l.zone] = `${ZONE_LABEL[l.zone]}: ${Math.round(l.sets * 10) / 10} series esta semana · ${RECOVERY_LABEL[rec]}`;
+  }
+  const worked = loads.filter((l) => l.sets > 0).sort((a, b) => b.sets - a.sets).slice(0, 3);
+  const resting = loads.filter((l) => ["rest", "recovering"].includes(recoveryOf(l)));
+  const ready = loads.filter((l) => recoveryOf(l) === "ready").slice(0, 4);
+  const sex = gym.profile.sex;
+
+  return (
+    <>
+      <Segmented label="Qué ver en el cuerpo" options={[{ value: "recovery", label: "Recuperación" }, { value: "load", label: "Carga 7 días" }]} value={mode} onChange={setMode} tight className="mb-2" />
+      <BodyMap sex={sex} fills={fills} titles={titles} label="Mapa del cuerpo con las zonas trabajadas" />
+      {mode === "recovery" ? (
+        <div className="bm-leg">
+          {(["rest", "recovering", "ready"] as const).map((r) => (
+            <span key={r}><i style={{ background: REC_COLOR[r] }} />{r === "rest" ? "Descansar" : r === "recovering" ? "Recuperando" : "Lista"}</span>
+          ))}
+        </div>
+      ) : (
+        <div className="bm-leg"><span><i style={{ background: "rgba(255,150,30,.35)" }} />Poco</span><span><i style={{ background: "rgba(255,50,30,.95)" }} />Mucho</span></div>
+      )}
+      <ul className="bm-list">
+        {resting.length > 0 && <li><b>Déjalos descansar:</b> {resting.map((l) => ZONE_LABEL[l.zone]).join(", ")}</li>}
+        {ready.length > 0 && <li><b>Listos para entrenar:</b> {ready.map((l) => ZONE_LABEL[l.zone]).join(", ")}</li>}
+        {worked.length > 0 && <li><b>Más trabajados:</b> {worked.map((l) => `${ZONE_LABEL[l.zone]} (${Math.round(l.sets)} series)`).join(", ")}</li>}
+        {!worked.length && <li className="muted">Cuando registres entrenos verás aquí qué músculos trabajaste y cuáles descansar.</li>}
+      </ul>
+    </>
+  );
+}
+
+/** Columna derecha: récords personales y reparto del trabajo por músculo. */
 export function GymRight({ gym }: { gym: GymState }) {
   const { today } = useToday();
   const now = new Date(today + "T00:00:00");
   const prs = personalRecords(gym, now);
   const load = muscleLoad(gym, now);
-  const [mode, setMode] = useState<"radar" | "bars">("radar");
-  const maxVol = Math.max(...load.map((l) => l.volume), 1);
+  const [mode, setMode] = useState<"body" | "radar">("body");
   const empty = load.every((l) => l.volume === 0 && l.sets === 0);
 
   return (
@@ -76,6 +126,7 @@ export function GymRight({ gym }: { gym: GymState }) {
       <section className="card">
         <div className="card-h">
           <h3>Récords personales</h3>
+          <InfoTip term="pr" />
         </div>
         {prs.length ? (
           <ol className="pr-list">
@@ -92,9 +143,7 @@ export function GymRight({ gym }: { gym: GymState }) {
                   {pr.kind === "load" ? (
                     <>
                       <b>{Math.round(pr.e1rm)} kg</b>
-                      <small>
-                        {pr.kg} × {pr.reps}
-                      </small>
+                      <small>{pr.kg} × {pr.reps}</small>
                     </>
                   ) : (
                     <>
@@ -109,44 +158,24 @@ export function GymRight({ gym }: { gym: GymState }) {
         ) : (
           <div className="empty">Tus récords aparecerán al registrar entrenos con peso.</div>
         )}
-        {prs.length > 0 && <p className="muted text-[12px] mt-2">Valor = 1RM estimado. Medalla dorada: récord de los últimos 30 días; plata, 90; bronce, más antiguo.</p>}
+        {prs.length > 0 && <p className="muted text-[12px] mt-2">Valor = 1RM estimado <InfoTip term="1rm" />. Medalla dorada: récord de los últimos 30 días; plata, 90; bronce, más antiguo.</p>}
       </section>
 
       <section className="card">
         <div className="card-h">
-          <h3>Volumen por músculo</h3>
+          <h3>Tus músculos</h3>
         </div>
-        <Segmented
-          label="Tipo de gráfica"
-          options={[
-            { value: "radar", label: "Radar" },
-            { value: "bars", label: "Barras" },
-          ]}
-          value={mode}
-          onChange={setMode}
-          tight
-          className="mb-3"
-        />
-        {empty ? (
+        <Segmented label="Tipo de gráfica" options={[{ value: "body", label: "Cuerpo" }, { value: "radar", label: "Radar" }]} value={mode} onChange={setMode} tight className="mb-3" />
+        {mode === "body" ? (
+          <BodyCard gym={gym} today={today} />
+        ) : empty ? (
           <div className="empty">Sin datos en los últimos 30 días.</div>
-        ) : mode === "radar" ? (
-          <RadarChart label="Volumen por grupo muscular" items={load.map((l) => ({ label: l.axis, value: l.volume || l.sets }))} />
         ) : (
-          <ul className="vbars">
-            {load.map((l) => (
-              <li key={l.axis}>
-                <span>{l.axis}</span>
-                <div className="bar-t">
-                  <i style={{ width: `${(l.volume / maxVol) * 100}%`, background: "linear-gradient(90deg,#ff6a2b,#ffb020)" }} />
-                </div>
-                <small>
-                  {l.volume >= 1000 ? `${(l.volume / 1000).toLocaleString("es", { maximumFractionDigits: 1 })} t` : `${fmt(l.volume)} kg`} · {l.sets}s
-                </small>
-              </li>
-            ))}
-          </ul>
+          <>
+            <RadarChart label="Volumen por grupo muscular" items={load.map((l) => ({ label: l.axis, value: l.volume || l.sets }))} />
+            <p className="muted text-[12px] mt-2">Últimos 30 días. Volumen = kg × repeticiones; el peso corporal solo cuenta en series.</p>
+          </>
         )}
-        <p className="muted text-[12px] mt-2">Últimos 30 días. Volumen = kg × repeticiones; el peso corporal solo cuenta en series.</p>
       </section>
     </>
   );

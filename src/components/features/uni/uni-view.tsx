@@ -45,6 +45,7 @@ export function UniView() {
 
   return (
     <ViewShell
+      assistant="uni"
       title="Universidad"
       subtitle={urgentCount ? `${urgentCount} ${urgentCount === 1 ? "evaluación urgente" : "evaluaciones urgentes"}` : "Asignaturas, evaluaciones y enfoque."}
       action={{ label: "Ajustes de Universidad", onClick: sheets.settings }}

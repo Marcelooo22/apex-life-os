@@ -5,6 +5,7 @@ import { ViewShell } from "@/components/layout/view-shell";
 import { Segmented } from "@/components/ui/segmented";
 import { useAppState } from "@/hooks/use-app-state";
 import { ActiveWorkoutCard } from "./active-workout-card";
+import { GymBody } from "./gym-body";
 import { GymCalendar } from "./gym-calendar";
 import { GymHeatmap } from "./gym-heatmap";
 import { GymHero } from "./gym-hero";
@@ -14,11 +15,12 @@ import { startWorkout } from "./start";
 import { StartWorkoutCard } from "./start-workout-card";
 import { useGymSheets } from "./use-gym-sheets";
 
-type Tab = "today" | "month" | "year";
+type Tab = "today" | "month" | "year" | "body";
 const TABS = [
-  { value: "today" as Tab, label: "Rutina de hoy" },
-  { value: "month" as Tab, label: "Historial mensual" },
-  { value: "year" as Tab, label: "Trayectoria anual" },
+  { value: "today" as Tab, label: "Hoy" },
+  { value: "month" as Tab, label: "Historial" },
+  { value: "year" as Tab, label: "Trayectoria" },
+  { value: "body" as Tab, label: "Mi cuerpo" },
 ];
 
 /** Sección "Iron": centro de rendimiento con rutina en vivo, historial y mapa de calor anual. */
@@ -37,11 +39,12 @@ export function GymView() {
 
   return (
     <ViewShell
-      title="Iron"
+      assistant="gym"
+      title="Gym"
       header={<GymHero gym={gym} />}
       action={{ label: "Ajustes del gym", onClick: sheets.settings }}
       columns={{
-        left: <GymLeft gym={gym} split={current} onStart={start} />,
+        left: <GymLeft gym={gym} split={current} onStart={start} onBody={() => setTab("body")} />,
         right: <GymRight gym={gym} />,
         labels: ["Resumen", "Entreno", "Récords"],
       }}
@@ -56,6 +59,7 @@ export function GymView() {
         </>
       )}
       {tab === "year" && <GymHeatmap gym={gym} />}
+      {tab === "body" && <GymBody gym={gym} />}
     </ViewShell>
   );
 }

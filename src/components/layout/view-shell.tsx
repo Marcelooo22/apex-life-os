@@ -2,6 +2,8 @@
 
 import { useState, type ReactNode } from "react";
 import { Icon } from "@/components/ui/icon";
+import { SectionAssistant } from "@/components/ui/section-assistant";
+import type { SectionId } from "@/lib/assistant/sections";
 import { useNavigation } from "@/hooks/use-navigation";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +29,8 @@ interface ViewShellProps {
   header?: ReactNode;
   /** Bloque a todo lo ancho entre el encabezado y las columnas. */
   top?: ReactNode;
+  /** Asistente propio de la sección. */
+  assistant?: SectionId;
   /** Diseño de tres columnas: en móvil las laterales pasan a un selector inferior. */
   columns?: ShellColumns;
   children: ReactNode;
@@ -38,7 +42,7 @@ interface ViewShellProps {
  * - 760–1099 px: columna principal y las laterales apiladas a su derecha.
  * - <760 px: un panel a la vez, con selector segmentado abajo.
  */
-export function ViewShell({ title, subtitle, action, fab, header, top, columns, children }: ViewShellProps) {
+export function ViewShell({ title, subtitle, action, fab, header, top, columns, assistant, children }: ViewShellProps) {
   const { back } = useNavigation();
   const [pane, setPane] = useState<Pane>("main");
   const dock = columns
@@ -103,6 +107,7 @@ export function ViewShell({ title, subtitle, action, fab, header, top, columns, 
           ))}
         </nav>
       )}
+      {assistant && <SectionAssistant scope={assistant} />}
       {fab && (
         <button type="button" className={cn("fab", columns && "has-dock")} onClick={fab.onClick}>
           <Icon name="plus" />

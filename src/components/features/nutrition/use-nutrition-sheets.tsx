@@ -4,6 +4,9 @@ import { useMemo } from "react";
 import { useSheet } from "@/components/ui/sheet-provider";
 import { MEALS } from "@/lib/constants";
 import { dkey } from "@/lib/dates";
+import { foodEmoji } from "@/lib/food-emoji";
+import { burst } from "@/lib/fx";
+import { mealForHour } from "@/lib/meals";
 import { scaleMacros, type FoodHit } from "@/lib/food";
 import { pick } from "@/lib/guards";
 import { dayOf } from "@/lib/nutrition";
@@ -14,10 +17,7 @@ import { PortionField } from "./portion-field";
 
 const mealIds = MEALS.map(([id]) => id);
 
-const defaultMealType = (): MealType => {
-  const h = new Date().getHours();
-  return h < 10 ? "Desayuno" : h < 15 ? "Almuerzo" : h < 20 ? "Snack" : "Cena";
-};
+const defaultMealType = (): MealType => mealForHour();
 
 /** Hojas modales de la sección Nutrición. */
 export function useNutritionSheets() {
@@ -41,16 +41,16 @@ export function useNutritionSheets() {
 
     return {
       /** Elegir cantidad de un alimento de la base de datos (o reajustar una comida ya guardada). */
-      food(food: Pick<FoodHit, "name" | "brand" | "per100" | "serving">, meal?: Meal) {
+      food(food: Pick<FoodHit, "name" | "brand" | "per100" | "serving">, meal?: Meal, type?: MealType) {
         const key = dkey();
         openSheet({
-          title: meal ? "Ajustar cantidad" : "¿Cuánto comiste?",
+          title: meal ? "Ajustar cantidad" : `${foodEmoji(food.name)} ¿Cuánto comiste?`,
           text: food.brand ? `${food.name} · ${food.brand}` : food.name,
           submit: meal ? "Guardar" : "Añadir comida",
           focus: false,
           fields: [
             { name: "grams", label: "Cantidad", type: "custom", render: () => <PortionField per100={food.per100} serving={food.serving} initial={meal?.grams ?? food.serving?.grams ?? 100} /> },
-            { name: "type", label: "Momento", type: "seg", options: MEALS, value: meal?.type ?? defaultMealType() },
+            { name: "type", label: "¿En qué momento?", type: "seg", options: MEALS, value: meal?.type ?? type ?? defaultMealType() },
           ],
           danger: meal ? { label: "Eliminar", fn: () => remove(key, meal.id) } : undefined,
           onSubmit: (v) => {
@@ -61,12 +61,13 @@ export function useNutritionSheets() {
               { id: meal?.id ?? uid(), name: food.name, brand: food.brand || undefined, type: pick(mealIds, v.type, "Snack"), ...m, grams, per100: food.per100 },
               meal,
             );
+            if (!meal) burst(foodEmoji(food.name), `+${m.kcal} kcal`);
           },
         });
       },
 
       /** Entrada manual: solo cuando el alimento no aparece en la base de datos. */
-      meal(id?: string) {
+      meal(id?: string, type?: MealType) {
         const key = dkey();
         const meal = id ? dayOf(getState(), key).meals.find((m) => m.id === id) : undefined;
         if (meal?.per100 && meal.grams) return this.food({ name: meal.name, brand: meal.brand ?? "", per100: meal.per100, serving: null }, meal);
@@ -77,7 +78,7 @@ export function useNutritionSheets() {
           submit: meal ? "Guardar" : "Añadir comida",
           fields: [
             { name: "name", label: "¿Qué comiste?", type: "text", required: true, value: meal?.name ?? "", placeholder: "Ej. Pollo con arroz" },
-            { name: "type", label: "Momento", type: "seg", options: MEALS, value: meal?.type ?? defaultMealType() },
+            { name: "type", label: "Momento", type: "seg", options: MEALS, value: meal?.type ?? type ?? defaultMealType() },
             { name: "kcal", label: "Calorías (kcal)", type: "number", half: true, value: meal?.kcal ?? "" },
             { name: "p", label: "Proteína (g)", type: "number", half: true, value: meal?.p ?? "" },
             { name: "c", label: "Carbohidratos (g)", type: "number", half: true, value: meal?.c ?? "" },
@@ -91,6 +92,7 @@ export function useNutritionSheets() {
             // Si no pones calorías, se calculan con los macros (4-4-9).
             const kcal = num(v.kcal) || p * 4 + c * 4 + f * 9;
             upsert(key, { id: meal?.id ?? uid(), name: (v.name ?? "").trim(), type: pick(mealIds, v.type, "Snack"), kcal, p, c, f }, meal);
+            if (!meal) burst(foodEmoji(v.name ?? ""), `+${Math.round(kcal)} kcal`);
           },
         });
       },

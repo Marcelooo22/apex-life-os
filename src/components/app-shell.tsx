@@ -1,9 +1,11 @@
 "use client";
 
+import { AuthProvider } from "@/components/auth/auth-provider";
 import { Landing } from "@/components/landing/landing";
 import { ViewHost } from "@/components/layout/view-host";
 import { RestTimer } from "@/components/ui/rest-timer";
 import { SheetProvider } from "@/components/ui/sheet-provider";
+import { FxHost } from "@/components/ui/fx-host";
 import { ToastHost } from "@/components/ui/toast-host";
 import { useAppState } from "@/hooks/use-app-state";
 import { useIsClient } from "@/hooks/use-is-client";
@@ -44,6 +46,7 @@ function AppContent() {
       <ViewHost />
       <RestTimer />
       <ToastHost />
+      <FxHost />
     </>
   );
 }
@@ -58,10 +61,12 @@ export function AppShell() {
   if (!isClient) return <div className="min-h-dvh bg-black" aria-hidden="true" />;
 
   return (
-    <NavigationProvider>
-      <SheetProvider>
-        <AppContent />
-      </SheetProvider>
-    </NavigationProvider>
+    <AuthProvider>
+      <NavigationProvider>
+        <SheetProvider>
+          <AppContent />
+        </SheetProvider>
+      </NavigationProvider>
+    </AuthProvider>
   );
 }

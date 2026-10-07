@@ -3,6 +3,10 @@
 import { Icon } from "@/components/ui/icon";
 import { SONG_STATUS } from "@/lib/constants";
 import { formatDuration } from "@/lib/music";
+import { useAppState } from "@/hooks/use-app-state";
+import { fetchSongInfo, listenLink, PLATFORMS } from "@/lib/songinfo";
+import { toast } from "@/lib/toast";
+import { useState } from "react";
 import { updateState } from "@/lib/store";
 import type { Song } from "@/lib/types";
 import { haptic, num, safeUrl } from "@/lib/utils";
@@ -16,8 +20,25 @@ interface Props {
 
 /** Tarjeta de una canción del repertorio, con su carátula oficial. */
 export function SongCard({ song, instrumentId, onEdit }: Props) {
+  const { prefs } = useAppState();
+  const [looking, setLooking] = useState(false);
+  const platform = PLATFORMS.find((p) => p.id === prefs.musicPlatform) ?? PLATFORMS[0]!;
   const bpm = song.bpmTarget ? `${song.bpmCurrent || "—"}/${song.bpmTarget} BPM` : song.bpmCurrent ? `${song.bpmCurrent} BPM` : "";
-  const link = song.link ? safeUrl(song.link) : "";
+  // Un enlace propio (tablatura, video) se conserva; los de Deezer antiguos se sustituyen por la plataforma preferida.
+  const material = song.link && !/deezer\.com/.test(song.link) ? safeUrl(song.link) : "";
+  const missing = !song.key || !song.bpmTarget;
+
+  const autofill = async () => {
+    setLooking(true);
+    const info = await fetchSongInfo({ title: song.title, artist: song.artist });
+    setLooking(false);
+    if (!info || (!info.bpm && !info.key)) return toast("No encontré datos de esta canción");
+    edit((s) => {
+      if (info.bpm && !s.bpmTarget) s.bpmTarget = info.bpm;
+      if (info.key && !s.key) s.key = info.key;
+    });
+    toast(`${[info.bpm ? `${info.bpm} BPM` : "", info.key ?? ""].filter(Boolean).join(" · ")}${info.approx ? " (estimado por IA)" : ""}`);
+  };
 
   const edit = (recipe: (s: Song) => void) =>
     updateState((d) => {
@@ -61,9 +82,12 @@ export function SongCard({ song, instrumentId, onEdit }: Props) {
         {song.key && <span className="badge key">{song.key}</span>}
         {song.tuning && <span className="badge tun">{song.tuning}</span>}
         {bpm && <span className="badge bpm">{bpm}</span>}
-        {link && (
-          <a href={link} target="_blank" rel="noopener noreferrer" className="badge text-[#c084fc]">
-            Escuchar <Icon name="link" />
+        <a href={listenLink(prefs.musicPlatform, song.title, song.artist)} target="_blank" rel="noopener noreferrer" className="badge listen">
+          Escuchar en {platform.label} <Icon name="link" />
+        </a>
+        {material && (
+          <a href={material} target="_blank" rel="noopener noreferrer" className="badge text-[#c084fc]">
+            Material <Icon name="link" />
           </a>
         )}
       </div>
@@ -77,9 +101,16 @@ export function SongCard({ song, instrumentId, onEdit }: Props) {
             +5
           </button>
         </div>
-        <button type="button" className="btn quiet sm" onClick={() => onEdit(song.id)}>
-          Editar
-        </button>
+        <div className="row2 gap-1">
+          {missing && (
+            <button type="button" className="btn ghost sm" onClick={autofill} disabled={looking}>
+              {looking ? "Buscando…" : "Buscar BPM y tono"}
+            </button>
+          )}
+          <button type="button" className="btn quiet sm" onClick={() => onEdit(song.id)}>
+            Editar
+          </button>
+        </div>
       </div>
     </article>
   );

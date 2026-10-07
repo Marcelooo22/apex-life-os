@@ -3,6 +3,7 @@
 import { SearchField } from "@/components/ui/search-field";
 import { useDebouncedSearch } from "@/hooks/use-debounced-search";
 import { searchFood, type FoodHit } from "@/lib/food";
+import { foodEmoji } from "@/lib/food-emoji";
 
 interface Props {
   onPick: (food: FoodHit) => void;
@@ -43,6 +44,7 @@ export function FoodSearch({ onPick, onManual }: Props) {
               {s.results.map((f) => (
                 <li key={f.id}>
                   <button type="button" className="f-row" onClick={() => onPick(f)}>
+                    <span className="f-emoji" aria-hidden="true">{foodEmoji(f.name)}</span>
                     <span className="t-info">
                       <strong>{f.name}</strong>
                       <small>{f.brand || "Sin marca"} · por 100 g</small>

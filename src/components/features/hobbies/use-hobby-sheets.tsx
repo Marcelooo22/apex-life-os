@@ -9,6 +9,7 @@ import { getState, updateState } from "@/lib/store";
 import { toast } from "@/lib/toast";
 import type { Song } from "@/lib/types";
 import { num, safeUrl, uid } from "@/lib/utils";
+import { SongInfoFill } from "./song-info-fill";
 import { Cover } from "./track-search";
 
 /** Hojas modales de la sección Hobbies (canciones e instrumentos). */
@@ -97,7 +98,7 @@ export function useHobbySheets() {
             { name: "tuning", label: "Afinación", type: "text", half: true, placeholder: instrument.detail || "Estándar" },
             { name: "bpmTarget", label: "BPM objetivo", type: "number", half: true, placeholder: "Opcional" },
           ],
-          children: (
+          header: (
             <div className="pick-head">
               <Cover src={track.cover} size={72} />
               <div>
@@ -109,6 +110,7 @@ export function useHobbySheets() {
               </div>
             </div>
           ),
+          footer: <SongInfoFill track={track} />,
           onSubmit: (v) =>
             save(instrumentId, {
               id: uid(),
@@ -123,7 +125,7 @@ export function useHobbySheets() {
               bpmCurrent: "",
               bpmTarget: v.bpmTarget ? num(v.bpmTarget) : "",
               status: pick(SONG_STATUS, v.status, "Por aprender"),
-              link: safeUrl(track.link),
+              link: "",
               notes: "",
             }),
         });

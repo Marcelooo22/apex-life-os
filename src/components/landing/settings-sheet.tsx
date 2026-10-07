@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { useAuth } from "@/components/auth/auth-provider";
 import { useSheet } from "@/components/ui/sheet-provider";
 import { useBackup } from "@/hooks/use-backup";
 import { isIOS, isStandalone, useInstallPrompt } from "@/hooks/use-install-prompt";
@@ -14,6 +15,7 @@ export function useSettingsSheet() {
   const { openSheet, closeSheet, confirm } = useSheet();
   const { exportData, pickImport } = useBackup();
   const install = useInstallPrompt();
+  const auth = useAuth();
 
   return useCallback(() => {
     const resetAll = () => {
@@ -48,7 +50,44 @@ export function useSettingsSheet() {
       },
       children: (
         <>
-          <p className="txt mt-4">Tus datos viven solo en este dispositivo. Descarga una copia de vez en cuando.</p>
+          {auth.status === "in" && (
+            <div className="acct">
+              <span className="muted">Sesión iniciada</span>
+              <b>{auth.email}</b>
+              <small className="muted">
+                {auth.sync.status === "synced" ? "Guardado en tu cuenta" : auth.sync.status === "syncing" ? "Guardando…" : auth.sync.status === "pending" ? "Cambios por guardar…" : auth.sync.status === "offline" ? "Sin conexión: se guardará al volver" : auth.sync.status === "error" ? "No se pudo guardar en la cuenta. Se reintentará." : ""}
+              </small>
+              <div className="row2">
+                <button type="button" className="btn ghost" onClick={auth.syncNow}>
+                  Guardar ahora
+                </button>
+                <button
+                  type="button"
+                  className="btn ghost"
+                  onClick={() => {
+                    closeSheet(true);
+                    setTimeout(
+                      () =>
+                        confirm("¿Cerrar sesión?", "Tus datos quedan guardados en tu cuenta. Este dispositivo se limpiará.", "Cerrar sesión", () => {
+                          void auth.signOut().then((err) => err && toast(err));
+                        }),
+                      60,
+                    );
+                  }}
+                >
+                  Cerrar sesión
+                </button>
+              </div>
+            </div>
+          )}
+          {auth.status === "guest" && (
+            <button type="button" className="btn primary big gap" onClick={() => { closeSheet(true); auth.openPortal(); }}>
+              Crear cuenta o iniciar sesión
+            </button>
+          )}
+          <p className="txt mt-4">
+            {auth.status === "in" ? "Tus datos se guardan en tu cuenta y en este dispositivo. Una copia de vez en cuando nunca está de más." : "Tus datos viven solo en este dispositivo. Descarga una copia de vez en cuando."}
+          </p>
           <div className="row2">
             <button type="button" className="btn ghost" onClick={exportData}>
               Exportar copia
@@ -78,5 +117,5 @@ export function useSettingsSheet() {
         </>
       ),
     });
-  }, [openSheet, closeSheet, confirm, exportData, pickImport, install]);
+  }, [openSheet, closeSheet, confirm, exportData, pickImport, install, auth]);
 }

@@ -7,6 +7,8 @@ import { Rings } from "@/components/ui/rings";
 import { Segmented } from "@/components/ui/segmented";
 import { useAppState } from "@/hooks/use-app-state";
 import { SONG_STATUS } from "@/lib/constants";
+import { updateState } from "@/lib/store";
+import { PLATFORMS } from "@/lib/songinfo";
 import type { SongStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { SongCard } from "./song-card";
@@ -18,7 +20,7 @@ type StatusFilter = "all" | SongStatus;
 
 /** Sección "Repertorio": biblioteca musical con buscador, estados de estudio y vinilo. */
 export function HobbiesView() {
-  const { hobbies } = useAppState();
+  const { hobbies, prefs } = useAppState();
   const sheets = useHobbySheets();
   const instruments = hobbies.instruments;
   const [instrumentId, setInstrumentId] = useState(instruments[0]?.id ?? "");
@@ -116,11 +118,31 @@ export function HobbiesView() {
 
   return (
     <ViewShell
+      assistant="hobbies"
       title="Repertorio"
       subtitle="Práctica deliberada, piezas y sobrecarga musical."
       action={{ label: "Gestionar hobbies e instrumentos", onClick: () => sheets.instrument(current.id) }}
       columns={{ left, right, labels: ["Instrumentos", "Biblioteca", "Práctica"] }}
     >
+      <div className="plat" role="radiogroup" aria-label="Plataforma para escuchar">
+        <span className="muted">Escuchar en</span>
+        {PLATFORMS.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            role="radio"
+            aria-checked={prefs.musicPlatform === p.id}
+            className={cn("chip", prefs.musicPlatform === p.id && "on")}
+            onClick={() =>
+              updateState((d) => {
+                d.prefs.musicPlatform = p.id;
+              })
+            }
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
       <TrackSearch onPick={(t) => sheets.fromTrack(current.id, t)} onManual={() => sheets.song(current.id)} />
       <Segmented label="Filtrar por estado" options={statusOptions} value={status} onChange={setStatus} tight className="my-3.5" />
       {filtered.length === 0 ? (

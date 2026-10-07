@@ -10,6 +10,7 @@ import { ASSISTANT_EXAMPLES, type Pending } from "@/lib/assistant/local";
 import type { ChatTurn, Proposal } from "@/lib/assistant/schema";
 import { HABIT_CATEGORIES, WEEKDAYS } from "@/lib/constants";
 import { TEMPLATE_LABEL } from "@/lib/custom";
+import { AiAura } from "@/components/ui/ai-aura";
 import { cn } from "@/lib/utils";
 
 interface Message {
@@ -143,6 +144,7 @@ export function AssistantSheet({ onClose }: { onClose: () => void }) {
 
   return (
     <div className={cn("sheet ai-sheet", shown && "open")}>
+      {shown && <AiAura colors={["#7c6bff", "#22d3ee", "#f472b6"]} />}
       <div className="sheet-back" onClick={close} />
       <div className="sheet-panel ai-panel" role="dialog" aria-modal="true" aria-label="Asistente de Apex" data-theme="none">
         <div className="grab" />

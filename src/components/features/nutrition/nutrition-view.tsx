@@ -4,6 +4,12 @@ import { ViewShell } from "@/components/layout/view-shell";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Rings } from "@/components/ui/rings";
 import { useSheet } from "@/components/ui/sheet-provider";
+import { useState, useEffect } from "react";
+import { foodEmoji } from "@/lib/food-emoji";
+import { burst } from "@/lib/fx";
+import { mealForHour } from "@/lib/meals";
+import type { MealType } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { useAppState } from "@/hooks/use-app-state";
 import { useRingProgress } from "@/hooks/use-ring-progress";
 import { useToday } from "@/hooks/use-time-key";
@@ -42,8 +48,17 @@ function MacroBar({ totals, goals }: { totals: MacroTotals; goals: NutritionGoal
   const total = Math.max(goals.kcal, parts.reduce((s, p) => s + p.kcal, 0)) || 1;
   const shown = useRingProgress(1);
   const left = goals.kcal - totals.kcal;
+  const [pulse, setPulse] = useState(false);
+  useEffect(() => {
+    const on = setTimeout(() => setPulse(true), 0);
+    const off = setTimeout(() => setPulse(false), 900);
+    return () => {
+      clearTimeout(on);
+      clearTimeout(off);
+    };
+  }, [totals.kcal]);
   return (
-    <section className="mbar card" aria-label="Macronutrientes de hoy">
+    <section className={cn("mbar card", pulse && "pulse")} aria-label="Macronutrientes de hoy">
       <div className="mbar-track" role="img" aria-label={`Proteína ${Math.round(totals.p)} g, carbohidratos ${Math.round(totals.c)} g, grasas ${Math.round(totals.f)} g`}>
         {parts.map((p) => (
           <i key={p.key} className={`seg-${p.key}`} style={{ width: `${(p.kcal / total) * 100 * shown}%` }} />
@@ -68,6 +83,8 @@ export function NutritionView() {
   const { today } = useToday();
   const { confirm } = useSheet();
   const sheets = useNutritionSheets();
+  const [chosen, setChosen] = useState<MealType | null>(null);
+  const mealType = chosen ?? mealForHour();
 
   const goals = state.nutrition.goals;
   const day = dayOf(state, today);
@@ -80,6 +97,7 @@ export function NutritionView() {
       entry.water = Math.max(0, entry.water + ml);
     });
     haptic(10);
+    if (ml > 0) burst("💧", `+${ml} ml`);
   };
 
   const resetWater = () =>
@@ -169,13 +187,21 @@ export function NutritionView() {
 
   return (
     <ViewShell
+      assistant="nutrition"
       title="Nutrición"
       subtitle={longDate()}
       action={{ label: "Metas diarias", onClick: sheets.goals }}
       top={<MacroBar totals={totals} goals={goals} />}
       columns={{ left: leftCol, right: rightCol, labels: ["Metas", "Comidas", "Balance"] }}
     >
-      <FoodSearch onPick={(f) => sheets.food(f)} onManual={() => sheets.meal()} />
+      <div className="meal-pick" role="radiogroup" aria-label="Qué vas a registrar">
+        {MEALS.map(([type, label]) => (
+          <button key={type} type="button" role="radio" aria-checked={mealType === type} className={cn("chip", mealType === type && "on")} onClick={() => setChosen(type)}>
+            {label}
+          </button>
+        ))}
+      </div>
+      <FoodSearch onPick={(f) => sheets.food(f, undefined, mealType)} onManual={() => sheets.meal(undefined, mealType)} />
       <section className="card mt-3.5">
         <div className="card-h">
           <h3>Comidas de hoy</h3>
@@ -199,7 +225,8 @@ export function NutritionView() {
               </div>
               {meals.map((m) => (
                 <button key={m.id} type="button" className="meal" onClick={() => sheets.meal(m.id)}>
-                  <span>
+                  <span className="meal-e" aria-hidden="true">{foodEmoji(m.name)}</span>
+                  <span className="meal-t">
                     <strong>{m.name}</strong>
                     <small>
                       {m.grams ? <span>{m.grams} g</span> : null}

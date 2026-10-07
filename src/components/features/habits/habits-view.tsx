@@ -168,6 +168,7 @@ export function HabitsView() {
 
   return (
     <ViewShell
+      assistant="habits"
       title="Hábitos"
       subtitle="Sin límites y sin suscripción."
       fab={{ label: "Hábito", onClick: () => openHabitSheet() }}

@@ -53,6 +53,10 @@ export interface SheetConfig {
   fields?: readonly FieldConfig[];
   /** Contenido libre debajo de los campos (botones extra, listas…). */
   children?: ReactNode;
+  /** Contenido justo debajo del título (una ficha, una imagen…). */
+  header?: ReactNode;
+  /** Contenido justo encima del botón principal (avisos, sugerencias…). */
+  footer?: ReactNode;
   /** Texto del botón principal. Si falta, solo se muestra "Cerrar". */
   submit?: string;
   danger?: { label: string; fn: () => void };
@@ -210,6 +214,7 @@ function SheetView({ config, open, theme, onClose }: { config: SheetConfig; open
         <div className="grab" />
         <h2 id={titleId}>{config.title}</h2>
         {config.text && <p className="txt">{config.text}</p>}
+        {config.header}
         {fields.length > 0 && (
           <div className="fields">
             {fields.map((f) => (
@@ -218,6 +223,7 @@ function SheetView({ config, open, theme, onClose }: { config: SheetConfig; open
           </div>
         )}
         {config.children}
+        {config.footer}
         <div className="sheet-actions">
           {config.submit && (
             <button className="btn primary big" type="submit">

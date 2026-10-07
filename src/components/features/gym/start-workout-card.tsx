@@ -17,33 +17,40 @@ export function StartWorkoutCard({ gym, split, onSplit }: Props) {
   const names = Object.keys(gym.routines);
   const current = gym.routines[split] ? split : (names[0] ?? "");
   const list = gym.routines[current] ?? [];
-
-  const start = () => startWorkout(gym, current);
+  const first = gym.sessions.length === 0;
 
   return (
     <section className="card">
       <div className="card-h">
         <h3>Empezar entreno</h3>
+        <button type="button" className="btn quiet sm" onClick={sheets.programs}>
+          Elegir programa
+        </button>
       </div>
+      {first && (
+        <button type="button" className="g-tip" onClick={sheets.programs}>
+          <b>¿Primera vez?</b> Elige un programa ya armado (cuerpo completo, torso/pierna, PPL…) y empieza hoy.
+        </button>
+      )}
       <Segmented
-        label="División muscular"
+        label="Rutina"
         options={names.map((n) => ({ value: n, label: n }))}
         value={current}
         onChange={onSplit}
         trailing={
-          <button type="button" className="seg-b" aria-label="Nueva división" onClick={() => sheets.addSplit(onSplit)}>
+          <button type="button" className="seg-b" aria-label="Nueva rutina" onClick={() => sheets.addSplit(onSplit)}>
             <Icon name="plus" />
           </button>
         }
       />
-      <p className="muted my-3.5">
-        {list.length ? list.join(", ") : "Esta división no tiene ejercicios. Puedes añadirlos durante el entreno o editarla."}
-      </p>
-      <button type="button" className="btn primary big start-inline" onClick={start}>
+      <ul className="routine-list">
+        {list.length ? list.map((n) => <li key={n}>{n}</li>) : <li className="muted">Esta rutina no tiene ejercicios. Añádelos con el botón de abajo.</li>}
+      </ul>
+      <button type="button" className="btn primary big start-inline" onClick={() => startWorkout(gym, current)}>
         Empezar {current}
       </button>
       <button type="button" className="btn quiet big gap" onClick={() => sheets.editRoutine(current)}>
-        Editar ejercicios de {current}
+        {list.length ? `Cambiar ejercicios de ${current}` : "Elegir ejercicios"}
       </button>
     </section>
   );
