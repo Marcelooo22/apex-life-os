@@ -42,3 +42,28 @@ body:has(.rest) .sa-orb{opacity:0;pointer-events:none}
 .sa-sheet .ai-in:focus-within{border-color:var(--c1);box-shadow:0 0 0 3px color-mix(in srgb,var(--c1) 25%,transparent)}
 .ai-msg p+p{margin-top:6px}
 .ai-msg p{white-space:pre-wrap}
+
+/* ===== Esferas de IA: recorte seguro en iPhone y sin cuadrados ===== */
+.ai-orb,.sa-orb{overflow:visible;isolation:auto;background:none;border-radius:50%;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+.ai-orb{box-shadow:0 0 0 1px rgba(255,255,255,.2),0 16px 44px -8px rgba(124,107,255,.75),0 0 60px -6px rgba(34,211,238,.35)}
+.sa-orb{box-shadow:0 0 0 1px rgba(255,255,255,.22),0 12px 34px -8px var(--c1)}
+.orb-core{position:absolute;inset:0;display:block;border-radius:50%;overflow:hidden;clip-path:circle(50% at 50% 50%);-webkit-mask-image:-webkit-radial-gradient(white,black);mask-image:radial-gradient(circle,#000 99%,transparent 100%);background:#090912;transform:translateZ(0);box-shadow:inset 0 0 18px rgba(255,255,255,.14)}
+.orb-core .ai-blob{mix-blend-mode:normal;opacity:.92;filter:blur(9px)}
+@media(max-width:759.98px){.sa-orb{bottom:calc(env(safe-area-inset-bottom) + 86px)}}
+
+/* ===== Aura ligera: detrás del chat, sin desenfoques ni máscaras ===== */
+.ai-sheet .sheet-back{z-index:0}
+.ai-sheet .aura{z-index:1}
+.ai-sheet .sheet-panel{z-index:2;background:rgba(18,18,24,.94)}
+.aura{-webkit-mask-image:none;mask-image:none}
+.aura i{border-radius:50%;filter:none;opacity:.7;background:radial-gradient(closest-side,var(--c) 0,transparent 100%);animation:auraWave var(--d) ease-in-out infinite;animation-delay:var(--dl)}
+@keyframes auraWave{0%,100%{transform:translate(0,0) rotate(0) scale(1,1)}33%{transform:translate(calc(var(--mx) * .6),var(--my)) rotate(35deg) scale(1.25,.8)}66%{transform:translate(var(--mx),calc(var(--my) * -.6)) rotate(-30deg) scale(.85,1.2)}}
+@media(max-width:759.98px){.aura i{opacity:.55}}
+
+/* ===== Animación de ejercicios y atribución ===== */
+.ex-anim{position:relative;aspect-ratio:3/2;border-radius:18px;overflow:hidden;background:#f4f4f5;margin:0 auto;width:100%;max-width:420px}
+.ex-anim img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#f4f4f5}
+.ex-anim img.b{animation:exFlip 2.4s ease-in-out infinite}
+@keyframes exFlip{0%,35%{opacity:0}50%,85%{opacity:1}100%{opacity:0}}
+.ex-anim figcaption{position:absolute;left:10px;bottom:8px;padding:3px 10px;border-radius:99px;background:rgba(0,0,0,.6);color:#fff;font-size:11.5px}
+.attrib{font-size:12px;text-align:center;margin:18px 0 6px}.attrib a{text-decoration:underline}
