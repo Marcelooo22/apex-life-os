@@ -74,10 +74,12 @@ export function SectionAssistant({ scope }: { scope: SectionId }) {
   return (
     <>
       <button type="button" className="sa-orb" style={vars} onClick={() => setOpen(true)} aria-label={`Abrir ${cfg.name}`} title={cfg.name}>
-        <i className="ai-blob b1" />
-        <i className="ai-blob b2" />
-        <i className="ai-blob b3" />
-        <i className="ai-gloss" />
+        <span className="orb-core">
+          <i className="ai-blob b1" />
+          <i className="ai-blob b2" />
+          <i className="ai-blob b3" />
+          <i className="ai-gloss" />
+        </span>
       </button>
       {open && (
         <div className={cn("sheet ai-sheet sa-sheet", shown && "open")} style={vars}>
