@@ -53,20 +53,26 @@ export function startRest(seconds: number) {
   tick();
 }
 
-/** Suma 30 segundos (o reabre 30 s si ya había terminado). */
-export function addRest() {
+/** Suma (o resta) segundos al descanso en curso. */
+export function addRest(delta = 15) {
   if (!rest) return;
   const now = Date.now();
   if (rest.end <= now) {
-    rest.end = now + 30_000;
-    rest.total = 30_000;
+    if (delta <= 0) return;
+    rest.end = now + delta * 1000;
+    rest.total = delta * 1000;
   } else {
-    rest.end += 30_000;
-    rest.total += 30_000;
+    rest.end = Math.max(now + 1000, rest.end + delta * 1000);
+    rest.total = Math.max(1000, rest.total + delta * 1000);
   }
   rest.fired = false;
   tick();
 }
+
+/** Tiempos que se ofrecen con un toque. */
+export const REST_PRESETS = [30, 60, 90, 120, 180] as const;
+
+export const fmtRest = (sec: number) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
 
 export function hideRest() {
   rest = null;

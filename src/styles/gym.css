@@ -102,3 +102,104 @@
 .vbars{list-style:none;display:grid;gap:10px}
 .vbars li{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;font-size:13px}
 .vbars small{color:var(--muted);font-variant-numeric:tabular-nums;font-size:11.5px}
+
+/* ===== Rango ===== */
+.g-hero{--rk:#facc15;--rk-rgb:250,204,21}
+.g-rank{display:flex;gap:16px;align-items:center}
+.g-rank-t{min-width:0;flex:1;max-width:420px}
+.g-kicker{font-size:12.5px;font-weight:650;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:2px}
+#view-gym .g-hero h1{font-size:clamp(30px,5vw,44px);line-height:1.05;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-.035em;background:linear-gradient(90deg,var(--rk),#fff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:8px;margin:2px 0 8px}
+.g-xp{height:8px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;max-width:360px}
+.g-xp i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--rk),#fff);box-shadow:0 0 12px rgba(var(--rk-rgb),.8);transition:width 1.1s var(--ease)}
+.g-rank-t p{font-size:13px;color:rgba(255,255,255,.75);margin-top:6px}
+.rb{flex:none}
+
+/* ===== Ayudas "i" ===== */
+.info-tip{position:relative;display:inline-grid;place-items:center;width:18px;height:18px;margin-left:4px;border-radius:50%;border:1px solid rgba(255,255,255,.38);font:italic 700 11px/1 Georgia,serif;color:rgba(255,255,255,.7);vertical-align:middle;text-transform:none}
+.info-tip::after{content:"";position:absolute;inset:-13px}
+.info-tip:hover{background:rgba(255,255,255,.14);color:#fff}
+.tip-list{list-style:none;display:grid;gap:8px;margin:2px 0 6px}
+.tip-list li{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.07);font-size:14.5px;line-height:1.4}
+
+/* ===== Entreno en acordeón ===== */
+.ex{padding:0}
+.ex-bar{display:flex;align-items:center;gap:12px;width:100%;padding:14px 0;text-align:left;min-height:64px}
+.ex-n{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:800;font-size:14px;color:var(--muted);background:rgba(255,255,255,.08)}
+.ex.all-done .ex-n{background:var(--btn);color:var(--ink);font-size:18px}
+.ex.open .ex-n{background:rgba(255,106,43,.22);color:#ffb070}
+.ex-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.ex-t strong{font-size:16.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ex-t small{color:var(--muted);font-size:12.5px}
+.ex-chev{color:var(--muted);transition:rotate .3s var(--ease)}.ex.open .ex-chev{rotate:180deg}
+.ex-body{padding:0 0 16px;animation:exIn .35s var(--ease)}
+@keyframes exIn{from{opacity:0;translate:0 -6px}}
+.ex-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.ex-auto{font-size:12px;margin:2px 0 10px}
+.ex-rm{margin-left:auto}
+.set-h.no-effort,.set.no-effort{grid-template-columns:28px 1fr 1fr 52px}
+.set-h span{display:inline-flex;justify-content:center;align-items:center}
+.a-sub{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.a-sub .chip{min-height:36px;font-size:13px}
+.set.done .chk{animation:pop .4s var(--ease)}
+
+/* ===== Descanso ===== */
+.rest{flex-direction:column;align-items:stretch;gap:8px;padding:12px 12px 16px 16px;border-radius:26px}
+.rest-top{display:flex;align-items:center;gap:10px}
+.rest-b button{min-width:48px;height:42px;padding:0 10px}
+.rest-presets{display:flex;gap:6px;flex-wrap:wrap}
+.rest-presets .chip{min-height:38px;padding:0 14px;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.rest.compact{left:auto;right:16px;translate:none;width:auto;min-width:96px;flex-direction:row;padding:10px 18px 14px;border-radius:99px;cursor:pointer;animation:none}
+.rest.compact .rest-t{font-size:22px}
+.rest-pick{justify-content:center}.rest-pick .chip{min-height:52px;min-width:72px;font-size:17px;font-weight:800}
+
+/* ===== Selector de ejercicios ===== */
+.xp{display:grid;gap:10px}
+.xp-sel{display:flex;flex-wrap:wrap;gap:6px}
+.xp-sel .chip{min-height:36px;font-size:13px;gap:6px}
+.xp-search{min-height:50px}.xp-search input{height:48px;font-size:16px}
+.xp-filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.xp-filters .chip{flex:none;min-height:36px;font-size:13px;padding:0 12px}
+.xp-list{list-style:none;max-height:min(40dvh,340px);overflow-y:auto;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.xp-row{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;text-align:left;min-height:56px;border-top:1px solid var(--line)}
+.xp-list li:first-child .xp-row{border-top:0}
+.xp-chk{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.25);display:grid;place-items:center;font-size:16px;color:transparent;flex:none;transition:background .2s}
+.xp-row.on .xp-chk{background:var(--btn);border-color:transparent;color:var(--ink)}
+.xp-row.custom .xp-chk{color:var(--ac);border-color:var(--ac)}
+.xp-empty{padding:18px;text-align:center}
+
+/* ===== Programas ===== */
+.prog-list{display:grid;gap:10px;margin-top:4px}
+.prog{display:grid;gap:4px;padding:14px;border-radius:18px;text-align:left;background:rgba(255,255,255,.06);border:1px solid var(--line);transition:background .2s,border-color .2s}
+.prog:hover{background:rgba(255,106,43,.12);border-color:rgba(255,106,43,.5)}
+.prog-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.prog-h small{color:#ffb070;font-weight:650;font-size:12.5px}
+.prog-b{color:var(--muted);font-size:13.5px;line-height:1.4}.prog-s{font-size:12px;color:rgba(255,255,255,.5)}
+.g-tip{width:100%;text-align:left;padding:12px 14px;margin-bottom:12px;border-radius:14px;background:rgba(255,106,43,.14);border:1px solid rgba(255,106,43,.35);font-size:14px;line-height:1.4}
+.routine-list{list-style:none;margin:14px 0;display:flex;flex-wrap:wrap;gap:6px}
+.routine-list li{padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.07);font-size:13.5px}
+
+/* ===== Guía del ejercicio ===== */
+.help{display:grid;gap:14px}
+.help-bm{max-width:300px;margin:0 auto;width:100%}
+.help-steps{list-style:none;display:grid;gap:10px}
+.help-steps li{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.06);line-height:1.45;font-size:14.5px}
+.help-steps li span{font-size:11.5px;font-weight:750;color:#ffb070;text-transform:uppercase;letter-spacing:.06em}
+.help-n{font-size:12.5px}
+
+/* ===== Mapa del cuerpo ===== */
+.bm{width:100%;display:block;max-width:380px;margin:0 auto}
+.bm-base *{fill:#16161b;stroke:rgba(255,255,255,.1);stroke-width:1}
+.bm-z{stroke:rgba(255,255,255,.14);stroke-width:.8;transition:fill .5s var(--ease)}
+.bm-t{fill:var(--muted);font-size:11px;font-weight:650}
+.bm-leg{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:8px 0;font-size:12px;color:var(--muted)}
+.bm-leg span{display:inline-flex;align-items:center;gap:6px}.bm-leg i{width:10px;height:10px;border-radius:50%}
+.bm-list{list-style:none;display:grid;gap:6px;font-size:13.5px;line-height:1.4}
+.bm-list b{color:var(--text)}
+
+/* ===== Mi cuerpo ===== */
+.body-mini{width:100%;margin-top:14px;text-align:left;display:flex;flex-direction:column;gap:2px}
+.body-mini b{font-size:20px}.body-mini small{font-size:13px;color:var(--muted);font-weight:600}
+.body-empty{display:grid;gap:8px;text-align:center;padding:26px 20px}
+.bmi{margin-top:12px;font-size:14px;color:var(--text)}.bmi.muted{color:var(--muted);margin-top:4px}
+.stat small{font-size:13px;color:var(--muted);font-weight:600}
+.lc{width:100%;display:block}.lc-t{fill:var(--text);font-size:10.5px;font-weight:700}.lc-d{fill:var(--muted);font-size:10px}
+@media(max-width:759.98px){body:has(.dock) .rest.compact{bottom:calc(env(safe-area-inset-bottom) + 86px)}}

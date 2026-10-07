@@ -59,7 +59,36 @@ export interface Session {
   prs: string[];
 }
 
+export type Sex = "male" | "female" | "";
+export type BodyGoal = "" | "muscle" | "fat" | "strength" | "health";
+
+/** Una medición corporal (solo el peso es obligatorio). */
+export interface BodyEntry {
+  id: string;
+  date: string;
+  weight: number;
+  /** % de grasa corporal. */
+  fat?: number;
+  /** % de masa muscular. */
+  muscle?: number;
+  /** Cintura en cm. */
+  waist?: number;
+}
+
+export interface GymProfile {
+  sex: Sex;
+  /** Altura en cm. */
+  height: number | "";
+  goal: BodyGoal;
+}
+
 export interface GymState {
+  profile: GymProfile;
+  body: BodyEntry[];
+  /** Arranca el descanso solo al completar una serie. */
+  autoRest: boolean;
+  /** Mostrar la casilla de esfuerzo (RPE/RIR). Si falta, solo aparece si ya usabas esfuerzo. */
+  showEffort?: boolean;
   goal: number;
   rest: number;
   effort: EffortScale;
@@ -254,10 +283,13 @@ export interface CustomModule {
   quick: number[];
 }
 
-/* ===================== Estado global ===================== */
+/* ===================== Preferencias y estado global ===================== */
+export type MusicPlatform = "spotify" | "youtube" | "apple" | "deezer";
+
 export interface AppState {
   v: 2;
   name: string;
+  prefs: { musicPlatform: MusicPlatform };
   gym: GymState;
   habits: HabitsState;
   nutrition: NutritionState;

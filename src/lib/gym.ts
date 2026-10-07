@@ -1,4 +1,5 @@
 import { addDays, dkey, parseKey, weekStart } from "./dates";
+import { exerciseMuscle, findExercise, type Muscle } from "./exercises";
 import type { ActiveExercise, ActiveWorkout, GymState, LoggedSet, Session } from "./types";
 import { num, uid } from "./utils";
 
@@ -99,7 +100,7 @@ export function buildSession(gym: GymState): Session | null {
 }
 
 /* ===================== Grupos musculares ===================== */
-export type Muscle = "Pecho" | "Espalda" | "Hombros" | "Bíceps" | "Tríceps" | "Piernas" | "Core";
+export type { Muscle };
 export type RadarAxis = "Pecho" | "Espalda" | "Hombros" | "Brazos" | "Piernas" | "Core";
 export const RADAR_AXES: readonly RadarAxis[] = ["Pecho", "Espalda", "Hombros", "Brazos", "Piernas", "Core"];
 
@@ -117,6 +118,8 @@ const MUSCLE_RULES: readonly (readonly [RegExp, Muscle])[] = [
 ];
 
 export function muscleOf(exercise: string): Muscle | null {
+  const known = findExercise(exercise);
+  if (known) return exerciseMuscle(known);
   const name = fold(exercise);
   return MUSCLE_RULES.find(([re]) => re.test(name))?.[1] ?? null;
 }

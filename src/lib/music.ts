@@ -7,6 +7,8 @@ export interface TrackHit {
   cover: string;
   durationSec: number;
   link: string;
+  /** De qué catálogo viene (para pedir luego el BPM). */
+  source: "deezer" | "spotify";
 }
 
 export async function searchTracks(query: string, signal: AbortSignal): Promise<TrackHit[]> {

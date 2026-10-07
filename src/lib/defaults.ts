@@ -5,7 +5,11 @@ import type { AppState, Habit, Instrument, Song, SongStatus } from "./types";
 export const defaults = (): AppState => ({
   v: 2,
   name: "",
+  prefs: { musicPlatform: "spotify" },
   gym: {
+    profile: { sex: "", height: "", goal: "" },
+    body: [],
+    autoRest: true,
     goal: 4,
     rest: 90,
     effort: "RPE",
@@ -105,10 +109,17 @@ export function hydrate(saved: unknown): AppState {
     ? s.custom.map(sanitizeCustomModule).filter((m): m is NonNullable<typeof m> => m !== null)
     : [];
 
+  const gym = { ...d.gym, ...(s.gym ?? {}) };
+  // Quien ya registraba esfuerzo lo sigue viendo; quien empieza de cero, no.
+  gym.showEffort ??= gym.sessions.some((x) => x.exercises.some((e) => e.sets.some((set) => set.rpe)));
+  gym.profile = { ...d.gym.profile, ...(gym.profile ?? {}) };
+  gym.body = Array.isArray(gym.body) ? gym.body : [];
+
   return {
     ...d,
     ...s,
-    gym: { ...d.gym, ...(s.gym ?? {}) },
+    prefs: { ...d.prefs, ...(s.prefs ?? {}) },
+    gym,
     habits: { ...habits, list: habits.list.map(migrateHabit) },
     nutrition: {
       ...d.nutrition,

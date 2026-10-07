@@ -275,6 +275,9 @@ export function interpretLocal(input: string, pending?: Pending): Proposal {
   if (HABIT_HINT.test(t)) return interpretHabit(text, t);
   if (exerciseHits >= 2) return interpretRoutine(`rutina de entreno: ${text}`);
   if (t.split(/\s+/).length >= 3 && /quiero|necesito|crear|crea|anade|agrega/.test(t)) return interpretModule(text, t);
+  if (/\?|\b(que es|que son|como|cuanto|cuantos|cuando|por que|bpm|tono|rpe|rir|calorias)\b/.test(t)) {
+    return reply("Eso suena a una pregunta, y este asistente sirve para crear cosas. Para preguntas (el BPM de una canción, qué es el RPE, cuánta proteína necesitas…) entra a la sección y toca la esfera de abajo a la izquierda: cada una tiene su propio asistente.");
+  }
   return reply("Puedo crear un hábito, una rutina de gym o un panel nuevo. Prueba, por ejemplo: «un panel para seguir mis finanzas».");
 }
 

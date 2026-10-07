@@ -14,10 +14,10 @@ export const SLOTS: readonly (readonly [Slot, string])[] = [
 ];
 
 export const MEALS: readonly (readonly [MealType, string])[] = [
-  ["Desayuno", "Desayuno"],
-  ["Almuerzo", "Almuerzo"],
-  ["Cena", "Cena"],
-  ["Snack", "Snack"],
+  ["Desayuno", "🍳 Desayuno"],
+  ["Almuerzo", "🍽️ Almuerzo"],
+  ["Cena", "🌙 Cena"],
+  ["Snack", "🍪 Snack"],
 ];
 
 /** Días de la semana, de lunes (0) a domingo (6). */
