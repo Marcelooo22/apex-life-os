@@ -1,4 +1,5 @@
 import { dkey } from "./dates";
+import { customMetric } from "./custom";
 import { weekCount } from "./gym";
 import { mealTotals } from "./nutrition";
 import type { AppState, ViewId } from "./types";
@@ -13,6 +14,7 @@ export interface Metric {
 
 /** Resumen de cada sección para las burbujas de la pantalla de inicio. */
 export function landingMetrics(state: AppState, now: Date = new Date()): Record<ViewId, Metric> {
+  const customs = Object.fromEntries(state.custom.map((m) => [m.id, customMetric(m, dkey(now))]));
   const today = dkey(now);
   const habits = state.habits.list;
   const habitsDone = habits.filter((h) => h.log[today]).length;
@@ -22,9 +24,10 @@ export function landingMetrics(state: AppState, now: Date = new Date()): Record<
   const tasks = state.uni.tasks;
   const open = tasks.filter((t) => t.status !== "Entregado");
   const songs = state.hobbies.instruments.flatMap((i) => i.songs);
-  const completed = songs.filter((s) => s.status === "Completada").length;
+  const completed = songs.filter((s) => s.status === "Dominada").length;
 
   return {
+    ...customs,
     gym: { p: week / goal, t: state.gym.active ? "Entreno en curso" : `${week} de ${goal} esta semana` },
     habits: { p: habits.length ? habitsDone / habits.length : 0, t: habits.length ? `${habitsDone} de ${habits.length} hoy` : "Crea el primero" },
     nutrition: { p: nutrition.kcal / state.nutrition.goals.kcal, t: `${fmt(nutrition.kcal)} kcal` },

@@ -1,0 +1,17 @@
+/* ================= MÓDULOS PERSONALIZADOS ================= */
+.cl{list-style:none}
+.cl li{display:flex;align-items:center;gap:12px;min-height:56px;border-top:1px solid var(--line)}.cl li:first-child{border-top:0}
+.cl li span{flex:1;line-height:1.35}.cl li.done span{text-decoration:line-through;color:var(--muted)}
+.cl-chk{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.26);display:grid;place-items:center;font-size:18px;color:transparent;flex:none;transition:background .25s,border-color .25s}
+.cl li.done .cl-chk{background:var(--btn);border-color:transparent;color:var(--ink)}
+.ct-quick{justify-content:center;margin-top:6px}
+.ct-bars{display:flex;gap:5px;align-items:flex-end;height:110px}
+.ct-b{flex:1;height:100%;border-radius:8px;background:rgba(255,255,255,.05);display:flex;align-items:flex-end;overflow:hidden}
+.ct-b i{display:block;width:100%;border-radius:8px;background:color-mix(in srgb,var(--ac) 55%,transparent);transition:height .8s var(--ease)}
+.ct-b.hit i{background:var(--ac)}.ct-b.t{outline:1.5px solid rgba(255,255,255,.55);outline-offset:1px}
+.lg-sum{display:flex;flex-direction:column;gap:6px}
+.lg-total{font-size:44px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1.05;margin-bottom:8px}
+.lg-sum .stat b{font-size:17px}
+.qa+.btn,.seg+.qa{margin-top:10px}
+.jr{display:flex;flex-direction:column;gap:3px;width:100%;padding:12px 0;border-top:1px solid var(--line);text-align:left}.jr:first-of-type{border-top:0}
+.jr small{color:var(--muted);font-size:12.5px}.jr span{line-height:1.45;white-space:pre-wrap}

@@ -23,3 +23,15 @@
 .orb .ico{font-size:30px;margin-bottom:4px;filter:drop-shadow(0 2px 10px rgba(var(--rgb),.8))}
 .orb b{font-size:15px;font-weight:650;letter-spacing:-.01em}
 .orb small{font-size:12px;color:rgba(255,255,255,.7);line-height:1.2}
+
+/* --- Esfera de IA y espacio para ella --- */
+.landing{padding-bottom:calc(env(safe-area-inset-bottom) + 130px)}
+.ai-orb{position:fixed;z-index:10;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);translate:-50% 0;width:66px;height:66px;border-radius:50%;overflow:hidden;isolation:isolate;background:#090912;box-shadow:0 0 0 1px rgba(255,255,255,.2),0 16px 44px -8px rgba(124,107,255,.75),0 0 60px -6px rgba(34,211,238,.35),inset 0 0 22px rgba(255,255,255,.14);animation:aiBreathe 5s ease-in-out infinite;transition:scale .3s var(--ease)}
+.ai-orb:hover{scale:1.08}.ai-orb:active{scale:.94}
+.ai-blob{position:absolute;width:72%;height:72%;border-radius:50%;filter:blur(11px);mix-blend-mode:screen;animation:aiMove 7s ease-in-out infinite}
+.ai-blob.b1{background:#7c6bff;left:-8%;top:-8%}
+.ai-blob.b2{background:#22d3ee;right:-10%;top:18%;animation-delay:-2.3s}
+.ai-blob.b3{background:#f472b6;left:14%;bottom:-14%;animation-delay:-4.6s}
+.ai-gloss{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 16%,rgba(255,255,255,.6),transparent 36%);pointer-events:none}
+@keyframes aiMove{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(24%,14%) scale(1.15)}66%{transform:translate(-12%,24%) scale(.9)}}
+@keyframes aiBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}

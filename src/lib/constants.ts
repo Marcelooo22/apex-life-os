@@ -1,16 +1,11 @@
-import type { CatalogSong, MealType, Slot, SongStatus, TaskStatus } from "./types";
+import type { HabitCategory, MealType, Slot, SongStatus, TaskKind, TaskStatus } from "./types";
 
 export const STORAGE_KEY = "apex.v2";
 
-export const SONG_STATUS: readonly SongStatus[] = [
-  "Por aprender",
-  "En proceso",
-  "Afinación",
-  "Velocidad",
-  "Completada",
-];
+export const SONG_STATUS: readonly SongStatus[] = ["Por aprender", "En práctica", "Dominada"];
 
 export const TASK_STATUS: readonly TaskStatus[] = ["Pendiente", "En proceso", "Entregado"];
+export const TASK_KINDS: readonly TaskKind[] = ["Entrega", "Práctica", "Parcial"];
 
 export const SLOTS: readonly (readonly [Slot, string])[] = [
   ["morning", "Mañana"],
@@ -25,27 +20,55 @@ export const MEALS: readonly (readonly [MealType, string])[] = [
   ["Snack", "Snack"],
 ];
 
-/** Catálogo para autocompletar canciones (título → artista, ritmo, tonalidad, BPM). */
-export const SONG_CATALOG: readonly CatalogSong[] = [
-  // Acordeón / Vallenato
-  { title: "La Gota Fría", artist: "Carlos Vives / Emiliano Zuleta", genre: "Paseo", key: "Sol Mayor (G)", bpm: 110, instrument: "Acordeón" },
-  { title: "Jaime Molina", artist: "Rafael Escalona", genre: "Paseo", key: "La Mayor (A)", bpm: 85, instrument: "Acordeón" },
-  { title: "El Cantor de Fonseca", artist: "Carlos Huertas", genre: "Paseo", key: "Re Mayor (D)", bpm: 92, instrument: "Acordeón" },
-  { title: "Mi Hermano y Yo", artist: "Los Hermanos Zuleta", genre: "Merengue", key: "Do Mayor (C)", bpm: 125, instrument: "Acordeón" },
-  { title: "La Creciente", artist: "Binomio de Oro", genre: "Paseo", key: "Si Bemol (Bb)", bpm: 88, instrument: "Acordeón" },
-  { title: "La Plata", artist: "Diomedes Díaz", genre: "Paseo", key: "Sol Mayor (G)", bpm: 118, instrument: "Acordeón" },
-  { title: "Obsesión", artist: "Peter Manjarrés / Las Estrellas Vallenatas", genre: "Paseo", key: "Fa Mayor (F)", bpm: 95, instrument: "Acordeón" },
-  { title: "Matilde Lina", artist: "Leandro Díaz", genre: "Paseo", key: "Sol Mayor (G)", bpm: 90, instrument: "Acordeón" },
-  { title: "Sin Medir Distancias", artist: "Diomedes Díaz", genre: "Paseo", key: "Mi Mayor (E)", bpm: 86, instrument: "Acordeón" },
-  { title: "Tierra de Cantores", artist: "Los Hermanos Zuleta", genre: "Merengue", key: "La Mayor (A)", bpm: 128, instrument: "Acordeón" },
-  // Saxofón
-  { title: "Careless Whisper", artist: "George Michael", genre: "Pop / Balada", key: "Re menor (Dm)", bpm: 76, instrument: "Saxofón" },
-  { title: "Baker Street", artist: "Gerry Rafferty", genre: "Rock", key: "Re Mayor (D)", bpm: 116, instrument: "Saxofón" },
-  { title: "Autumn Leaves", artist: "Standard de Jazz", genre: "Jazz", key: "Sol menor (Gm)", bpm: 120, instrument: "Saxofón" },
-  { title: "Pick Up the Pieces", artist: "Average White Band", genre: "Funk", key: "Fa menor (Fm)", bpm: 108, instrument: "Saxofón" },
-  // Guitarra Eléctrica
-  { title: "Sultans of Swing", artist: "Dire Straits", genre: "Rock", key: "Re menor (Dm)", bpm: 148, instrument: "Guitarra Eléctrica" },
-  { title: "Comfortably Numb", artist: "Pink Floyd", genre: "Rock Progresivo", key: "Si menor (Bm)", bpm: 65, instrument: "Guitarra Eléctrica" },
-  { title: "Sweet Child O' Mine", artist: "Guns N' Roses", genre: "Hard Rock", key: "Re Bemol (Db)", bpm: 125, instrument: "Guitarra Eléctrica" },
-  { title: "Hotel California", artist: "Eagles", genre: "Classic Rock", key: "Si menor (Bm)", bpm: 75, instrument: "Guitarra Eléctrica" },
+/** Días de la semana, de lunes (0) a domingo (6). */
+export const WEEKDAYS = [
+  { short: "L", long: "Lunes" },
+  { short: "M", long: "Martes" },
+  { short: "X", long: "Miércoles" },
+  { short: "J", long: "Jueves" },
+  { short: "V", long: "Viernes" },
+  { short: "S", long: "Sábado" },
+  { short: "D", long: "Domingo" },
+] as const;
+
+export const ALL_DAYS: readonly number[] = [0, 1, 2, 3, 4, 5, 6];
+
+export interface CategoryInfo {
+  id: HabitCategory;
+  label: string;
+  icon: "heart" | "sparkle" | "dumbbell" | "book" | "briefcase" | "users" | "home" | "wallet";
+  /** Color en r,g,b para los acentos de la categoría. */
+  rgb: string;
+}
+
+export const HABIT_CATEGORIES: readonly CategoryInfo[] = [
+  { id: "health", label: "Salud", icon: "heart", rgb: "251,113,133" },
+  { id: "mind", label: "Mente", icon: "sparkle", rgb: "196,181,253" },
+  { id: "body", label: "Cuerpo", icon: "dumbbell", rgb: "251,146,60" },
+  { id: "learning", label: "Aprender", icon: "book", rgb: "125,211,252" },
+  { id: "work", label: "Trabajo", icon: "briefcase", rgb: "253,224,71" },
+  { id: "social", label: "Social", icon: "users", rgb: "244,114,182" },
+  { id: "home", label: "Hogar", icon: "home", rgb: "167,243,208" },
+  { id: "money", label: "Dinero", icon: "wallet", rgb: "110,231,183" },
 ];
+
+export const categoryOf = (id: HabitCategory | undefined): CategoryInfo | undefined => HABIT_CATEGORIES.find((c) => c.id === id);
+
+/** Iconos que puede elegir el asistente para un módulo personalizado. */
+export const CUSTOM_ICONS = [
+  "wallet", "book", "drop", "moon", "sun", "heart", "sparkle", "target", "home", "users", "briefcase", "calendar",
+  "clock", "bolt", "plane", "cart", "pencil", "star", "leaf", "coffee", "camera", "film", "paw", "code", "music",
+  "dumbbell", "nutrition",
+] as const;
+
+/** Paleta de color de los módulos personalizados (evita los tonos de las secciones base). */
+export const CUSTOM_COLORS = [
+  { id: "rose", hex: "#fb7185" },
+  { id: "gold", hex: "#facc15" },
+  { id: "lime", hex: "#a3e635" },
+  { id: "teal", hex: "#2dd4bf" },
+  { id: "sky", hex: "#38bdf8" },
+  { id: "indigo", hex: "#818cf8" },
+  { id: "pink", hex: "#f472b6" },
+  { id: "sand", hex: "#e7c9a0" },
+] as const;

@@ -1,6 +1,7 @@
 import { produce, type Draft } from "immer";
 import { STORAGE_KEY } from "./constants";
 import { defaults, hydrate } from "./defaults";
+import { reconcileLinks } from "./links";
 import { toast } from "./toast";
 import type { AppState } from "./types";
 
@@ -15,9 +16,12 @@ let serverState: AppState | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
 const listeners = new Set<() => void>();
 
+/** Aplica los vínculos entre secciones (p. ej. entreno → hábito) sobre un estado completo. */
+const withLinks = (next: AppState): AppState => produce(next, (draft) => reconcileLinks(draft));
+
 function read(): AppState {
   try {
-    return hydrate(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null"));
+    return withLinks(hydrate(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null")));
   } catch {
     return defaults();
   }
@@ -56,14 +60,17 @@ export const getServerState = (): AppState => (serverState ??= defaults());
 
 /** Modifica el estado con una "receta" (estilo Immer) y lo guarda. */
 export function updateState(recipe: (draft: Draft<AppState>) => void) {
-  state = produce(getState(), recipe);
+  state = produce(getState(), (draft) => {
+    recipe(draft);
+    reconcileLinks(draft);
+  });
   emit();
   scheduleSave();
 }
 
 /** Sustituye todo el estado (importar copia, borrar todo). */
 export function replaceState(next: AppState) {
-  state = next;
+  state = withLinks(next);
   emit();
   flush();
 }

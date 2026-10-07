@@ -39,3 +39,82 @@
 .stat{padding:12px;border-radius:calc(var(--r)*.75);background:rgba(255,255,255,.05);border:1px solid var(--line)}
 .stat b{display:block;font-size:24px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--muted)}
+
+/* ================= BUSCADOR SPOTLIGHT ================= */
+.spot{position:relative;display:flex;align-items:center;gap:10px;min-height:56px;padding:0 8px 0 18px;border-radius:20px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);-webkit-backdrop-filter:blur(28px) saturate(1.4);backdrop-filter:blur(28px) saturate(1.4);box-shadow:0 14px 34px -18px rgba(0,0,0,.9);transition:border-color .25s,box-shadow .25s}
+.spot:focus-within{border-color:var(--ac);box-shadow:0 0 0 4px rgba(var(--rgb,255,255,255),.12),0 14px 34px -18px rgba(0,0,0,.9)}
+.spot-i{font-size:21px;color:var(--muted);flex:none}
+.spot input{flex:1;min-width:0;height:54px;background:none;border:0;outline:0;font-size:17px;-webkit-appearance:none;appearance:none}
+.spot input::placeholder{color:rgba(255,255,255,.38)}
+.spot input::-webkit-search-cancel-button{display:none}
+.spot-x{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:18px}
+.spot-spin{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.18);border-top-color:var(--ac);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{rotate:360deg}}
+.t-search{margin-bottom:0}
+.t-res{margin-top:10px;border-radius:20px;background:rgba(255,255,255,.045);border:1px solid var(--line);overflow:hidden}
+.t-res ul{list-style:none;transition:opacity .2s}.t-res ul.stale{opacity:.5}
+.t-row,.f-row{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;text-align:left;min-height:68px;border-top:1px solid var(--line);transition:background .2s}
+.t-res li:first-child .t-row,.t-res li:first-child .f-row{border-top:0}
+.t-row:hover,.f-row:hover{background:rgba(255,255,255,.05)}
+.t-row.sk,.f-row.sk{border-top:0;animation:pulse 1.2s ease-in-out infinite;background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.08),rgba(255,255,255,.03))}
+@keyframes pulse{50%{opacity:.5}}
+.t-info{flex:1;min-width:0;display:flex;flex-direction:column}
+.t-info strong{font-size:15px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t-info small{color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t-dur{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.t-add{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--btn);color:var(--ink);font-size:18px;flex:none}
+.t-msg{padding:18px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:8px;align-items:center}
+.f-kcal{text-align:right;font-size:13px;color:var(--muted);display:flex;flex-direction:column;flex:none}
+.f-kcal b{font-size:18px;color:var(--text);font-variant-numeric:tabular-nums}
+.f-kcal small{font-size:11.5px}
+.f-manual{display:inline-block;margin:10px 4px 0;font-size:13px}
+.cover{border-radius:14px;object-fit:cover;flex:none;background:rgba(255,255,255,.06);box-shadow:0 8px 20px -8px rgba(0,0,0,.8);display:block}
+.cover.ph{display:grid;place-items:center;color:var(--muted);font-size:24px}
+
+/* ================= CAMPOS NUEVOS DE LAS HOJAS ================= */
+.days-f{display:flex;gap:6px;justify-content:space-between}
+.days-f label{position:relative;flex:1;max-width:52px}
+.days-f input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0}
+.days-f span{display:grid;place-items:center;aspect-ratio:1;border-radius:50%;font-weight:700;font-size:14px;color:var(--muted);background:rgba(255,255,255,.07);border:1px solid var(--line);transition:background .2s,color .2s}
+.days-f input:checked+span{background:var(--btn);color:var(--ink);border-color:transparent}
+.days-f input:focus-visible+span{outline:2px solid #fff;outline-offset:2px}
+.choice-f{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.choice-f label{position:relative}
+.choice-f input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0}
+.choice-f span{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-size:12px;font-weight:600;color:var(--muted);transition:background .2s,color .2s}
+.choice-f .i{font-size:22px}
+.choice-f input:checked+span{background:var(--btn);color:var(--ink);border-color:transparent}
+.choice-f input:focus-visible+span{outline:2px solid #fff;outline-offset:2px}
+.time-f{display:flex;gap:8px;align-items:center}
+.time-f input{flex:1}
+.pick-head{display:flex;gap:14px;align-items:center;padding:4px 0 14px}
+.pick-head div{display:flex;flex-direction:column;min-width:0}
+.pick-head small{color:var(--muted)}
+.portion{display:grid;gap:12px}
+.portion-top{display:flex;justify-content:space-between;align-items:center}
+.portion-num{display:flex;align-items:baseline;gap:6px}
+.portion-num input{width:110px;min-height:56px!important;font-size:30px!important;font-weight:800;text-align:center;letter-spacing:-.03em}
+.portion-num span{font-size:18px;color:var(--muted);font-weight:600}
+.portion-kcal{text-align:right}.portion-kcal b{font-size:34px;font-weight:800;letter-spacing:-.03em;display:block;line-height:1;font-variant-numeric:tabular-nums}.portion-kcal span{color:var(--muted);font-size:13px}
+.portion-range{width:100%;accent-color:var(--ac);height:36px;touch-action:pan-y}
+.portion-chips .chip{min-height:38px;padding:0 12px;font-size:13px}
+.portion-macros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.portion-macros div{padding:10px;border-radius:14px;background:rgba(255,255,255,.06);text-align:center}
+.portion-macros dt{font-size:11.5px;color:var(--muted)}.portion-macros dd{font-weight:800;font-size:17px;font-variant-numeric:tabular-nums}
+.pos{color:#6ee7b7}.neg{color:#fda4af}
+
+/* ================= UTILIDADES COMPARTIDAS ================= */
+.kv{display:grid;gap:10px}
+.kv>div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.kv dt{color:var(--muted);font-size:13.5px}
+.kv dd{font-weight:700;font-variant-numeric:tabular-nums}
+.kv-flame{display:inline-flex;align-items:center;gap:4px;color:#ffb86b}
+.lnk{color:var(--ac);text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.cap{text-transform:none}.cap::first-letter{text-transform:uppercase}
+.qa{display:flex;gap:8px;margin-top:12px}
+.qa input{flex:1;min-width:0;min-height:48px;padding:0 14px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:16px}
+.qa input:focus{outline:2px solid var(--ac);border-color:transparent}
+.notes{width:100%;min-height:120px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:15px;line-height:1.5;resize:vertical}
+.notes:focus{outline:2px solid var(--ac);border-color:transparent}
+.rings.rings-sm{width:min(150px,50vw)}
+.rings.rings-sm .rings-c b{font-size:28px}
