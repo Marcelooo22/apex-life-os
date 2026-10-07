@@ -8,28 +8,26 @@ import { Segmented } from "@/components/ui/segmented";
 import { useAppState } from "@/hooks/use-app-state";
 import { SONG_STATUS } from "@/lib/constants";
 import type { SongStatus } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { SongCard } from "./song-card";
+import { TrackSearch } from "./track-search";
 import { useHobbySheets } from "./use-hobby-sheets";
+import { NowPlaying } from "./vinyl";
 
 type StatusFilter = "all" | SongStatus;
 
-/** Sección "Repertorio": instrumentos, canciones y progreso de estudio. */
+/** Sección "Repertorio": biblioteca musical con buscador, estados de estudio y vinilo. */
 export function HobbiesView() {
   const { hobbies } = useAppState();
   const sheets = useHobbySheets();
   const instruments = hobbies.instruments;
   const [instrumentId, setInstrumentId] = useState(instruments[0]?.id ?? "");
   const [status, setStatus] = useState<StatusFilter>("all");
-
   const current = instruments.find((i) => i.id === instrumentId) ?? instruments[0];
 
   if (!current) {
     return (
-      <ViewShell
-        title="Repertorio"
-        subtitle="Práctica deliberada, piezas y sobrecarga musical."
-        action={{ label: "Gestionar hobbies e instrumentos", onClick: () => sheets.instrument(undefined, setInstrumentId) }}
-      >
+      <ViewShell title="Repertorio" subtitle="Práctica deliberada, piezas y sobrecarga musical." action={{ label: "Gestionar hobbies e instrumentos", onClick: () => sheets.instrument(undefined, setInstrumentId) }}>
         <div className="empty">
           No tienes ningún hobby o instrumento configurado.
           <br />
@@ -43,11 +41,77 @@ export function HobbiesView() {
   }
 
   const songs = current.songs;
-  const completed = songs.filter((s) => s.status === "Completada").length;
-  const percent = songs.length ? Math.round((completed / songs.length) * 100) : 0;
+  const mastered = songs.filter((s) => s.status === "Dominada").length;
+  const percent = songs.length ? Math.round((mastered / songs.length) * 100) : 0;
   const filtered = songs.filter((s) => status === "all" || s.status === status);
-  const statusOptions = [{ value: "all" as StatusFilter, label: `Todas ${songs.length}` }].concat(
-    SONG_STATUS.map((s) => ({ value: s as StatusFilter, label: `${s} ${songs.filter((x) => x.status === s).length}` })),
+  const practicing = songs.find((s) => s.status === "En práctica");
+  const statusOptions = [{ value: "all" as StatusFilter, label: `Todas ${songs.length}` }, ...SONG_STATUS.map((s) => ({ value: s as StatusFilter, label: `${s} ${songs.filter((x) => x.status === s).length}` }))];
+
+  const left = (
+    <>
+      <section className="card">
+        <div className="card-h">
+          <h3>Instrumentos</h3>
+          <button type="button" className="icon-btn h-10 w-10 text-base" onClick={() => sheets.instrument(undefined, setInstrumentId)} aria-label="Añadir instrumento">
+            <Icon name="plus" />
+          </button>
+        </div>
+        <ul className="inst-list">
+          {instruments.map((i) => (
+            <li key={i.id}>
+              <button type="button" className={cn("inst", i.id === current.id && "on")} aria-pressed={i.id === current.id} onClick={() => { setInstrumentId(i.id); setStatus("all"); }}>
+                <span>
+                  <strong>{i.name}</strong>
+                  <small>{i.detail || "Sin detalle"}</small>
+                </span>
+                <b>{i.songs.length}</b>
+              </button>
+            </li>
+          ))}
+        </ul>
+        <button type="button" className="btn quiet sm mt-2" onClick={() => sheets.instrument(current.id)}>
+          Ajustes de {current.name}
+        </button>
+      </section>
+      <section className="card">
+        <div className="card-h">
+          <h3>Biblioteca</h3>
+        </div>
+        <dl className="kv">
+          {SONG_STATUS.map((s) => (
+            <div key={s}>
+              <dt>{s}</dt>
+              <dd>{songs.filter((x) => x.status === s).length}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    </>
+  );
+
+  const right = (
+    <>
+      <section className="card">
+        <div className="card-h">
+          <h3>Ahora practicando</h3>
+        </div>
+        <NowPlaying song={practicing} />
+      </section>
+      <section className="card sum">
+        <div className="rings">
+          <Rings items={[{ r: 80, s: 18, c: "#c084fc", p: songs.length ? mastered / songs.length : 0 }]} label={`${mastered} de ${songs.length} dominadas`} />
+          <div className="rings-c">
+            <b>{percent}%</b>
+          </div>
+        </div>
+        <div>
+          <h3>{current.name}</h3>
+          <p>
+            <b>{mastered}</b> de <b>{songs.length}</b> dominadas
+          </p>
+        </div>
+      </section>
+    </>
   );
 
   return (
@@ -55,53 +119,15 @@ export function HobbiesView() {
       title="Repertorio"
       subtitle="Práctica deliberada, piezas y sobrecarga musical."
       action={{ label: "Gestionar hobbies e instrumentos", onClick: () => sheets.instrument(current.id) }}
-      fab={{ label: "Canción", onClick: () => sheets.song(current.id) }}
+      columns={{ left, right, labels: ["Instrumentos", "Biblioteca", "Práctica"] }}
     >
-      <section className="card sum">
-        <div className="rings">
-          <Rings items={[{ r: 80, s: 18, c: "#c084fc", p: songs.length ? completed / songs.length : 0 }]} label={`${completed} de ${songs.length} completadas`} />
-          <div className="rings-c">
-            <b>{percent}%</b>
-          </div>
-        </div>
-        <div>
-          <h3>{current.name}</h3>
-          <p className="muted">{current.detail || "Sin especificación"}</p>
-          <p className="mt-1">
-            <b>{completed}</b> de <b>{songs.length}</b> en repertorio
-          </p>
-        </div>
-      </section>
-
-      <div className="card-h mb-1.5">
-        <h3>Instrumento</h3>
-        <button type="button" className="btn quiet sm" onClick={() => sheets.instrument(current.id)}>
-          Ajustes
-        </button>
-      </div>
-      <Segmented
-        label="Instrumento o hobby"
-        options={instruments.map((i) => ({ value: i.id, label: i.name }))}
-        value={current.id}
-        onChange={setInstrumentId}
-        className="mb-3.5"
-        trailing={
-          <button type="button" className="seg-b" aria-label="Añadir instrumento" onClick={() => sheets.instrument(undefined, setInstrumentId)}>
-            <Icon name="plus" />
-          </button>
-        }
-      />
-
-      <div className="card-h mb-1.5">
-        <h3>Estado de estudio</h3>
-      </div>
-      <Segmented label="Filtrar por estado" options={statusOptions} value={status} onChange={setStatus} tight className="mb-3.5" />
-
+      <TrackSearch onPick={(t) => sheets.fromTrack(current.id, t)} onManual={() => sheets.song(current.id)} />
+      <Segmented label="Filtrar por estado" options={statusOptions} value={status} onChange={setStatus} tight className="my-3.5" />
       {filtered.length === 0 ? (
         <div className="empty">
-          {songs.length ? "No hay canciones con este estado." : "Tu repertorio está vacío."}
+          {songs.length ? "No hay canciones con este estado." : "Tu biblioteca está vacía."}
           <br />
-          Toca + para añadir tu primera canción.
+          Busca arriba una canción o <button type="button" className="lnk" onClick={() => sheets.song(current.id)}>añádela a mano</button>.
         </div>
       ) : (
         filtered.map((song) => <SongCard key={song.id} song={song} instrumentId={current.id} onEdit={(id) => sheets.song(current.id, id)} />)

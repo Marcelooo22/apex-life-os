@@ -2,9 +2,11 @@
 
 import { Icon } from "@/components/ui/icon";
 import { SONG_STATUS } from "@/lib/constants";
+import { formatDuration } from "@/lib/music";
 import { updateState } from "@/lib/store";
 import type { Song } from "@/lib/types";
 import { haptic, num, safeUrl } from "@/lib/utils";
+import { Cover } from "./track-search";
 
 interface Props {
   song: Song;
@@ -12,13 +14,9 @@ interface Props {
   onEdit: (songId: string) => void;
 }
 
-/** Tarjeta de una canción del repertorio. */
+/** Tarjeta de una canción del repertorio, con su carátula oficial. */
 export function SongCard({ song, instrumentId, onEdit }: Props) {
-  const bpm = song.bpmTarget
-    ? `${song.bpmCurrent || "—"}/${song.bpmTarget} BPM`
-    : song.bpmCurrent
-      ? `${song.bpmCurrent} BPM`
-      : "";
+  const bpm = song.bpmTarget ? `${song.bpmCurrent || "—"}/${song.bpmTarget} BPM` : song.bpmCurrent ? `${song.bpmCurrent} BPM` : "";
   const link = song.link ? safeUrl(song.link) : "";
 
   const edit = (recipe: (s: Song) => void) =>
@@ -44,12 +42,15 @@ export function SongCard({ song, instrumentId, onEdit }: Props) {
 
   return (
     <article className="song-card">
-      <div className="song-head">
-        <div>
+      <div className="sc-top">
+        <Cover src={song.cover} size={64} />
+        <div className="sc-info">
           <strong>{song.title}</strong>
           <div className="song-meta">
             {song.artist && <span>{song.artist}</span>}
-            {song.genre && <span>• {song.genre}</span>}
+            {song.album && <span>• {song.album}</span>}
+            {song.durationSec ? <span>• {formatDuration(song.durationSec)}</span> : null}
+            {!song.album && song.genre && <span>• {song.genre}</span>}
           </div>
         </div>
         <button type="button" className="badge" data-st={song.status} onClick={cycleStatus} aria-label={`Estado: ${song.status}. Toca para avanzar`}>
@@ -58,10 +59,11 @@ export function SongCard({ song, instrumentId, onEdit }: Props) {
       </div>
       <div className="song-tags">
         {song.key && <span className="badge key">{song.key}</span>}
+        {song.tuning && <span className="badge tun">{song.tuning}</span>}
         {bpm && <span className="badge bpm">{bpm}</span>}
         {link && (
           <a href={link} target="_blank" rel="noopener noreferrer" className="badge text-[#c084fc]">
-            Audio <Icon name="link" />
+            Escuchar <Icon name="link" />
           </a>
         )}
       </div>

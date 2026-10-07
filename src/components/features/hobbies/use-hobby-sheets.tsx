@@ -2,54 +2,52 @@
 
 import { useMemo } from "react";
 import { useSheet } from "@/components/ui/sheet-provider";
-import { SONG_CATALOG, SONG_STATUS } from "@/lib/constants";
+import { SONG_STATUS } from "@/lib/constants";
 import { pick } from "@/lib/guards";
+import { formatDuration, type TrackHit } from "@/lib/music";
 import { getState, updateState } from "@/lib/store";
+import { toast } from "@/lib/toast";
 import type { Song } from "@/lib/types";
 import { num, safeUrl, uid } from "@/lib/utils";
-
-const CATALOG_TITLES = SONG_CATALOG.map((s) => s.title);
+import { Cover } from "./track-search";
 
 /** Hojas modales de la sección Hobbies (canciones e instrumentos). */
 export function useHobbySheets() {
   const { openSheet, closeSheet, confirm } = useSheet();
 
-  return useMemo(
-    () => ({
-      /** Crear o editar una canción del instrumento `instrumentId`. */
-      song(instrumentId: string, songId?: string) {
+  return useMemo(() => {
+    const save = (instrumentId: string, record: Song) =>
+      updateState((d) => {
+        const inst = d.hobbies.instruments.find((i) => i.id === instrumentId);
+        if (!inst) return;
+        const index = inst.songs.findIndex((s) => s.id === record.id);
+        if (index >= 0) inst.songs[index] = record;
+        else inst.songs.push(record);
+      });
+
+    return {
+      /** Crear (a mano) o editar una canción del instrumento `instrumentId`. */
+      song(instrumentId: string, songId?: string, preset?: string) {
         const instrument = getState().hobbies.instruments.find((i) => i.id === instrumentId);
         if (!instrument) return;
         const song = songId ? instrument.songs.find((s) => s.id === songId) : undefined;
 
         openSheet({
-          title: song ? "Editar canción" : "Añadir canción al repertorio",
+          title: song ? "Editar canción" : "Añadir canción a mano",
           submit: song ? "Guardar" : "Añadir",
           fields: [
-            { name: "title", label: "Título de la canción", type: "text", required: true, value: song?.title ?? "", placeholder: "Ej. La Gota Fría", list: CATALOG_TITLES },
+            { name: "title", label: "Título de la canción", type: "text", required: true, value: song?.title ?? preset ?? "", placeholder: "Ej. La Gota Fría" },
             { name: "artist", label: "Artista o compositor", type: "text", value: song?.artist ?? "", placeholder: "Ej. Carlos Vives" },
-            { name: "genre", label: "Ritmo o Aire", type: "text", half: true, value: song?.genre ?? "", placeholder: "Ej. Paseo, Merengue, Rock" },
-            { name: "key", label: "Tonalidad / Hilera", type: "text", half: true, value: song?.key ?? "", placeholder: "Ej. Sol Mayor (G), 5 Letras" },
-            { name: "bpmCurrent", label: "BPM Actual", type: "number", half: true, value: song?.bpmCurrent || "", placeholder: "Ej. 90" },
-            { name: "bpmTarget", label: "BPM Objetivo", type: "number", half: true, value: song?.bpmTarget || "", placeholder: "Ej. 110" },
+            { name: "album", label: "Álbum", type: "text", value: song?.album ?? "", placeholder: "Opcional" },
+            { name: "genre", label: "Ritmo o aire", type: "text", half: true, value: song?.genre ?? "", placeholder: "Paseo, Merengue, Rock" },
+            { name: "key", label: "Tono / hilera", type: "text", half: true, value: song?.key ?? "", placeholder: "Sol Mayor (G)" },
+            { name: "tuning", label: "Afinación", type: "text", value: song?.tuning ?? "", placeholder: "Ej. GCF, estándar, Mib" },
+            { name: "bpmCurrent", label: "BPM actual", type: "number", half: true, value: song?.bpmCurrent || "", placeholder: "90" },
+            { name: "bpmTarget", label: "BPM objetivo", type: "number", half: true, value: song?.bpmTarget || "", placeholder: "110" },
             { name: "status", label: "Estado", type: "seg", options: SONG_STATUS.map((s) => [s, s] as const), value: song?.status ?? "Por aprender" },
             { name: "link", label: "Enlace a video, tablatura o audio", type: "url", value: song?.link ?? "", placeholder: "https://..." },
             { name: "notes", label: "Apuntes técnicos / digitación", type: "textarea", value: song?.notes ?? "", placeholder: "Detalles del fuelleo, adornos, escala o solo..." },
           ],
-          // Al escribir un título conocido se rellenan los campos vacíos con datos del catálogo.
-          onFieldInput: (form, target) => {
-            if (!(target instanceof HTMLInputElement) || target.name !== "title") return;
-            const match = SONG_CATALOG.find((s) => s.title.toLowerCase() === target.value.trim().toLowerCase());
-            if (!match) return;
-            const fill = (name: string, value: string | number) => {
-              const el = form.elements.namedItem(name);
-              if (el instanceof HTMLInputElement && !el.value) el.value = String(value);
-            };
-            fill("artist", match.artist);
-            fill("genre", match.genre);
-            fill("key", match.key);
-            fill("bpmTarget", match.bpm);
-          },
           danger: song
             ? {
                 label: "Eliminar",
@@ -63,26 +61,71 @@ export function useHobbySheets() {
               }
             : undefined,
           onSubmit: (v) => {
-            const record: Song = {
+            save(instrumentId, {
+              ...song,
               id: song?.id ?? uid(),
               title: (v.title ?? "").trim(),
               artist: (v.artist ?? "").trim(),
+              album: (v.album ?? "").trim() || undefined,
               genre: (v.genre ?? "").trim(),
               key: (v.key ?? "").trim(),
+              tuning: (v.tuning ?? "").trim() || undefined,
               bpmCurrent: v.bpmCurrent ? num(v.bpmCurrent) : "",
               bpmTarget: v.bpmTarget ? num(v.bpmTarget) : "",
               status: pick(SONG_STATUS, v.status, "Por aprender"),
               link: safeUrl(v.link),
               notes: (v.notes ?? "").trim(),
-            };
-            updateState((d) => {
-              const inst = d.hobbies.instruments.find((i) => i.id === instrumentId);
-              if (!inst) return;
-              const index = song ? inst.songs.findIndex((s) => s.id === song.id) : -1;
-              if (index >= 0) inst.songs[index] = record;
-              else inst.songs.push(record);
             });
           },
+        });
+      },
+
+      /** Añadir a la biblioteca una canción elegida en el buscador. */
+      fromTrack(instrumentId: string, track: TrackHit) {
+        const instrument = getState().hobbies.instruments.find((i) => i.id === instrumentId);
+        if (!instrument) return;
+        const dup = instrument.songs.some((s) => s.title.toLowerCase() === track.title.toLowerCase() && s.artist.toLowerCase() === track.artist.toLowerCase());
+        if (dup) return toast("Esa canción ya está en tu biblioteca");
+
+        openSheet({
+          title: "Añadir a tu biblioteca",
+          submit: "Añadir",
+          focus: false,
+          fields: [
+            { name: "status", label: "Estado", type: "seg", options: SONG_STATUS.map((s) => [s, s] as const), value: "Por aprender" },
+            { name: "key", label: "Tono", type: "text", half: true, placeholder: "Sol Mayor (G)" },
+            { name: "tuning", label: "Afinación", type: "text", half: true, placeholder: instrument.detail || "Estándar" },
+            { name: "bpmTarget", label: "BPM objetivo", type: "number", half: true, placeholder: "Opcional" },
+          ],
+          children: (
+            <div className="pick-head">
+              <Cover src={track.cover} size={72} />
+              <div>
+                <strong>{track.title}</strong>
+                <small>{track.artist}</small>
+                <small>
+                  {[track.album, track.durationSec ? formatDuration(track.durationSec) : ""].filter(Boolean).join(" · ")}
+                </small>
+              </div>
+            </div>
+          ),
+          onSubmit: (v) =>
+            save(instrumentId, {
+              id: uid(),
+              title: track.title,
+              artist: track.artist,
+              album: track.album || undefined,
+              cover: track.cover || undefined,
+              durationSec: track.durationSec || undefined,
+              genre: "",
+              key: (v.key ?? "").trim(),
+              tuning: (v.tuning ?? "").trim() || undefined,
+              bpmCurrent: "",
+              bpmTarget: v.bpmTarget ? num(v.bpmTarget) : "",
+              status: pick(SONG_STATUS, v.status, "Por aprender"),
+              link: safeUrl(track.link),
+              notes: "",
+            }),
         });
       },
 
@@ -133,7 +176,6 @@ export function useHobbySheets() {
           },
         });
       },
-    }),
-    [openSheet, closeSheet, confirm],
-  );
+    };
+  }, [openSheet, closeSheet, confirm]);
 }

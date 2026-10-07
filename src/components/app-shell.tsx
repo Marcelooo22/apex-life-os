@@ -8,6 +8,7 @@ import { ToastHost } from "@/components/ui/toast-host";
 import { useAppState } from "@/hooks/use-app-state";
 import { useIsClient } from "@/hooks/use-is-client";
 import { NavigationProvider } from "@/hooks/use-navigation";
+import { useHabitReminders } from "@/hooks/use-habit-reminders";
 import { useStorageLifecycle } from "@/hooks/use-storage-lifecycle";
 import { useWakeLock } from "@/hooks/use-wake-lock";
 
@@ -32,6 +33,7 @@ function SvgDefs() {
 function AppContent() {
   const { gym } = useAppState();
   useStorageLifecycle();
+  useHabitReminders();
   // La pantalla no se apaga mientras haya un entreno en curso.
   useWakeLock(gym.active !== null);
 

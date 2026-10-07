@@ -2,10 +2,8 @@
 
 import { Icon } from "@/components/ui/icon";
 import { Segmented } from "@/components/ui/segmented";
-import { unlockAudio } from "@/lib/audio";
-import { createWorkout } from "@/lib/gym";
-import { updateState } from "@/lib/store";
 import type { GymState } from "@/lib/types";
+import { startWorkout } from "./start";
 import { useGymSheets } from "./use-gym-sheets";
 
 interface Props {
@@ -20,13 +18,7 @@ export function StartWorkoutCard({ gym, split, onSplit }: Props) {
   const current = gym.routines[split] ? split : (names[0] ?? "");
   const list = gym.routines[current] ?? [];
 
-  const start = () => {
-    const workout = createWorkout(gym, current);
-    updateState((d) => {
-      d.gym.active = workout;
-    });
-    unlockAudio();
-  };
+  const start = () => startWorkout(gym, current);
 
   return (
     <section className="card">
@@ -47,7 +39,7 @@ export function StartWorkoutCard({ gym, split, onSplit }: Props) {
       <p className="muted my-3.5">
         {list.length ? list.join(", ") : "Esta división no tiene ejercicios. Puedes añadirlos durante el entreno o editarla."}
       </p>
-      <button type="button" className="btn primary big" onClick={start}>
+      <button type="button" className="btn primary big start-inline" onClick={start}>
         Empezar {current}
       </button>
       <button type="button" className="btn quiet big gap" onClick={() => sheets.editRoutine(current)}>

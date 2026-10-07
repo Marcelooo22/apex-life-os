@@ -6,12 +6,17 @@ import { HabitsView } from "@/components/features/habits/habits-view";
 import { HobbiesView } from "@/components/features/hobbies/hobbies-view";
 import { NutritionView } from "@/components/features/nutrition/nutrition-view";
 import { UniView } from "@/components/features/uni/uni-view";
+import { CustomView } from "@/components/features/custom/custom-view";
+import { useAppState } from "@/hooks/use-app-state";
+import { hexToRgb } from "@/lib/custom";
+import { themeVars } from "@/lib/theme";
+import { isCustomViewId } from "@/lib/types";
 import { useNavigation } from "@/hooks/use-navigation";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import type { ViewId } from "@/lib/types";
 
 /** Registro de secciones: para añadir una nueva basta con sumarla aquí y a `ViewId`. */
-const VIEWS: Record<ViewId, { label: string; Component: ComponentType }> = {
+const VIEWS: Record<string, { label: string; Component: ComponentType }> = {
   gym: { label: "Gym", Component: GymView },
   habits: { label: "Hábitos", Component: HabitsView },
   nutrition: { label: "Nutrición", Component: NutritionView },
@@ -28,6 +33,7 @@ const farthestCorner = (x: number, y: number) =>
 /** Muestra la sección activa con la animación circular desde la burbuja pulsada. */
 export function ViewHost() {
   const { view, instant, originRef } = useNavigation();
+  const { custom } = useAppState();
   const reduced = useReducedMotion();
   // La sección sigue montada mientras dura la animación de cierre.
   const [rendered, setRendered] = useState<ViewId | null>(view);
@@ -60,10 +66,20 @@ export function ViewHost() {
   }, [view, rendered, instant, reduced, originRef]);
 
   if (!rendered) return null;
-  const { label, Component } = VIEWS[rendered];
+  const mod = isCustomViewId(rendered) ? custom.find((m) => m.id === rendered) : undefined;
+  const builtin = VIEWS[rendered];
+  if (!builtin && !mod) return null;
   return (
-    <section key={rendered} ref={ref} className="view" id={`view-${rendered}`} data-theme={rendered} aria-label={label}>
-      <Component />
+    <section
+      key={rendered}
+      ref={ref}
+      className="view"
+      id={`view-${rendered}`}
+      data-theme={rendered}
+      aria-label={builtin?.label ?? mod?.name}
+      style={mod ? { ...themeVars(rendered), background: `radial-gradient(90% 46% at 50% -8%, rgba(${hexToRgb(mod.color)},.2), transparent 62%), var(--vbg)` } : undefined}
+    >
+      {builtin ? <builtin.Component /> : <CustomView id={rendered} />}
     </section>
   );
 }

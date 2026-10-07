@@ -1,7 +1,12 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
-import { isViewId, type ViewId } from "@/lib/types";
+import { getState } from "@/lib/store";
+import { isBuiltinViewId, isCustomViewId, type ViewId } from "@/lib/types";
+
+/** Una sección es válida si es de las base o un módulo personalizado que existe. */
+const isViewId = (value: unknown): value is ViewId =>
+  isBuiltinViewId(value) || (isCustomViewId(value) && getState().custom.some((m) => m.id === value));
 
 export interface Point {
   x: number;

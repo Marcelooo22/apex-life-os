@@ -19,5 +19,8 @@
 @import "../styles/hobbies.css" layer(components);
 @import "../styles/uni.css" layer(components);
 @import "../styles/sheet.css" layer(components);
+@import "../styles/layout.css" layer(components);
+@import "../styles/assistant.css" layer(components);
+@import "../styles/custom.css" layer(components);
 
 @import "tailwindcss/utilities.css" layer(utilities);
