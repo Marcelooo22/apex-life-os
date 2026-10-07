@@ -4,10 +4,12 @@
 export function AiOrb({ onOpen }: { onOpen: () => void }) {
   return (
     <button type="button" className="ai-orb" onClick={onOpen} aria-label="Abrir el asistente de Apex">
-      <span className="ai-blob b1" />
-      <span className="ai-blob b2" />
-      <span className="ai-blob b3" />
-      <span className="ai-gloss" />
+      <span className="orb-core">
+        <i className="ai-blob b1" />
+        <i className="ai-blob b2" />
+        <i className="ai-blob b3" />
+        <i className="ai-gloss" />
+      </span>
     </button>
   );
 }
