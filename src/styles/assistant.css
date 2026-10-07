@@ -23,17 +23,12 @@
 .ai-dots{display:flex;gap:5px;padding:4px 0}.ai-dots i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:pulse 1s ease-in-out infinite}.ai-dots i:nth-child(2){animation-delay:.15s}.ai-dots i:nth-child(3){animation-delay:.3s}
 @media(min-width:700px){.ai-panel{height:min(660px,80dvh)}}
 
-/* ===== Aura de pantalla (estilo Siri) ===== */
-@property --a{syntax:"<angle>";initial-value:0deg;inherits:false}
-.aura{--c1:#7c6bff;--c2:#22d3ee;--c3:#f472b6;position:fixed;inset:0;z-index:75;pointer-events:none;animation:auraIn .9s var(--ease) both}
-.aura i{position:absolute;inset:0;border-radius:var(--screen-r,0);background:conic-gradient(from var(--a),var(--c1),var(--c2),var(--c3),var(--c1));animation:auraSpin 7s linear infinite}
-.aura-ring{padding:3px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);opacity:.95}
-.aura-glow{padding:26px;filter:blur(34px);opacity:.7;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:auraSpin 7s linear infinite,auraWave 3.4s ease-in-out infinite}
-.aura-glow.b{padding:60px;filter:blur(60px);opacity:.45;animation:auraSpin 11s linear infinite reverse,auraWave 4.6s ease-in-out infinite reverse}
-@keyframes auraSpin{to{--a:360deg}}
-@keyframes auraWave{0%,100%{scale:1;opacity:.55}50%{scale:1.02;opacity:.9}}
-@keyframes auraIn{from{opacity:0;scale:1.08}}
-@media(max-width:759.98px){.aura{--screen-r:38px}}
+/* ===== Aura de pantalla: olas de luz que se mueven y cambian de forma ===== */
+.aura{position:fixed;inset:0;z-index:75;pointer-events:none;overflow:hidden;animation:auraIn 1s var(--ease) both;-webkit-mask-image:radial-gradient(ellipse 74% 72% at 50% 50%,transparent 50%,#000 100%);mask-image:radial-gradient(ellipse 74% 72% at 50% 50%,transparent 50%,#000 100%)}
+.aura i{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);border-radius:42% 58% 63% 37% / 41% 44% 56% 59%;background:radial-gradient(circle at 50% 50%,var(--c) 0,transparent 68%);filter:blur(24px);opacity:.95;will-change:transform;animation:auraMorph var(--t) ease-in-out infinite,auraDrift var(--d) ease-in-out infinite;animation-delay:var(--dl),var(--dl)}
+@keyframes auraMorph{0%,100%{border-radius:42% 58% 63% 37% / 41% 44% 56% 59%}33%{border-radius:61% 39% 47% 53% / 55% 62% 38% 45%}66%{border-radius:38% 62% 36% 64% / 60% 35% 65% 40%}}
+@keyframes auraDrift{0%,100%{transform:translate(0,0) rotate(0) scale(1)}50%{transform:translate(var(--mx),var(--my)) rotate(40deg) scale(1.2)}}
+@keyframes auraIn{from{opacity:0;scale:1.1}}
 
 /* ===== Asistente de sección ===== */
 .sa-orb{position:fixed;z-index:34;left:max(18px,calc((100vw - 1560px)/2 + 28px));bottom:calc(env(safe-area-inset-bottom) + 24px);width:54px;height:54px;border-radius:50%;overflow:hidden;isolation:isolate;background:#0a0a10;box-shadow:0 0 0 1px rgba(255,255,255,.22),0 12px 34px -8px var(--c1),inset 0 0 18px rgba(255,255,255,.14);animation:aiBreathe 5s ease-in-out infinite;transition:scale .3s var(--ease)}
