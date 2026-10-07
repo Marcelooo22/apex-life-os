@@ -154,6 +154,12 @@ export function HobbiesView() {
       ) : (
         filtered.map((song) => <SongCard key={song.id} song={song} instrumentId={current.id} onEdit={(id) => sheets.song(current.id, id)} />)
       )}
+            <p className="muted attrib">
+        BPM y tono con datos de{" "}
+        <a href="https://getsongbpm.com" target="_blank" rel="noopener noreferrer">
+          GetSongBPM.com
+        </a>
+      </p>
     </ViewShell>
   );
 }
