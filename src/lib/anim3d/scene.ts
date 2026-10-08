@@ -1,10 +1,11 @@
 import * as THREE from "three";
 import type { Zone } from "../exercises";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { clampPose } from "./limits";
 import { loadBody, type BodyData } from "./body-data";
 import { createSkinnedFigure } from "./skinned";
-import { applyPose, contactPoints, createFigure, handsMidY, handY, paintZones, type BodySex, type Figure } from "./figure";
-import type { Motion, Pose, Prop } from "./types";
+import { applyPose, contactPoints, solveArm, createFigure, handsMidY, handY, paintZones, type BodySex, type Figure } from "./figure";
+import type { HandsOut, Motion, Pose, Prop, V3 } from "./types";
 
 const D = Math.PI / 180;
 const METAL = 0xa7b3c6;
@@ -48,6 +49,7 @@ export class ExerciseScene {
   private skinned = false;
   private disposed = false;
   private lastS = 0;
+  private lastMiss = 0;
   private bodies: Partial<Record<BodySex, BodyData>> = {};
   private loading = new Set<BodySex>();
   private zones: { primary: Zone[]; secondary: Zone[] } = { primary: [], secondary: [] };
@@ -201,7 +203,34 @@ export class ExerciseScene {
     this.fit();
   }
 
-  private place(m: Motion, P: Pose) {
+  /** Pone el cuerpo en la postura `raw` (limitada a rangos humanos) y coloca las manos si el movimiento las guía. */
+  private place(m: Motion, raw: Pose, s: number) {
+    this.placeBody(m, clampPose(raw).pose);
+    if (m.raise) this.fig.root.position.y += m.raise;
+    this.lastMiss = this.applyHands(m, s);
+  }
+
+  private applyHands(m: Motion, s: number): number {
+    if (!m.hands) return 0;
+    const f = this.fig;
+    f.root.updateMatrixWorld(true);
+    const v = new THREE.Vector3();
+    const arr = (w: THREE.Vector3): V3 => [w.x, w.y, w.z];
+    const out: HandsOut = m.hands(s, {
+      t: (x, y, z) => arr(f.torso.localToWorld(v.set(x, y, z))),
+      dir: (x, y, z) => arr(v.set(x, y, z).transformDirection(f.torso.matrixWorld)),
+      sh: { L: arr(f.sh.L.getWorldPosition(new THREE.Vector3())), R: arr(f.sh.R.getWorldPosition(new THREE.Vector3())) },
+    });
+    let miss = 0;
+    for (const side of ["L", "R"] as const) {
+      const pole = out[side === "L" ? "poleL" : "poleR"] ?? [side === "L" ? 0.5 : -0.5, -1, -0.3];
+      miss = Math.max(miss, solveArm(f, side, new THREE.Vector3(...out[side]), new THREE.Vector3(...pole)));
+    }
+    f.root.updateMatrixWorld(true);
+    return miss;
+  }
+
+  private placeBody(m: Motion, P: Pose) {
     const f = this.fig;
     const rootDeg = (m.rootX ?? 0) - (P.lift ?? 0);
     const flat = m.flat !== false;
@@ -264,12 +293,37 @@ export class ExerciseScene {
     }
   }
 
+  /** Para la auditoría: mide un instante del movimiento sin dibujar. */
+  audit(s: number) {
+    const m = this.motion;
+    if (!m) return null;
+    const raw = lerpPose(m.a, m.b, s);
+    const { hits } = clampPose(raw);
+    const reach = (() => { this.place(m, raw, s); return this.lastMiss; })();
+    const f = this.fig;
+    f.root.updateMatrixWorld(true);
+    const v = new THREE.Vector3();
+    const y = (o: THREE.Object3D) => o.getWorldPosition(v).y;
+    const soles = (["L", "R"] as const).map((k) => Math.min(y(f.toe[k]), y(f.heel[k])));
+    const low = Math.min(y(f.hand.L), y(f.hand.R), y(f.elbow.L), y(f.elbow.R), y(f.knee.L), y(f.knee.R), y(f.head));
+    // ¿manos o codos dentro del tronco o de la cabeza? (se mide en coordenadas del tronco)
+    let inside = 0;
+    const lp = new THREE.Vector3();
+    for (const o of [f.hand.L, f.hand.R, f.elbow.L, f.elbow.R]) {
+      o.getWorldPosition(lp);
+      f.torso.worldToLocal(lp);
+      if (lp.y > 0.02 && lp.y < 0.5 && (lp.x / 0.15) ** 2 + (lp.z / 0.1) ** 2 < 1) inside++;
+      if (lp.y > 0.52 && lp.distanceTo(new THREE.Vector3(0, 0.68, 0.01)) < 0.1) inside++;
+    }
+    return { hits, soles, low, pelvisY: y(f.root), reach, inside };
+  }
+
   /** Dibuja el fotograma de la fase `s` (0 = postura A, 1 = postura B). */
   renderAt(s: number) {
     const m = this.motion;
     if (!m) return;
     this.lastS = s;
-    this.place(m, lerpPose(m.a, m.b, s));
+    this.place(m, lerpPose(m.a, m.b, s), s);
     this.fig.root.updateMatrixWorld(true);
     this.updaters.forEach((u) => u());
     this.updateCamera();
@@ -290,7 +344,7 @@ export class ExerciseScene {
     if (!m || this.camera.aspect === 0) return;
     const box = new THREE.Box3();
     for (const s of [0, 0.25, 0.5, 0.75, 1]) {
-      this.place(m, lerpPose(m.a, m.b, s));
+      this.place(m, lerpPose(m.a, m.b, s), s);
       this.fig.root.updateMatrixWorld(true);
       this.updaters.forEach((u) => u());
       box.union(new THREE.Box3().setFromObject(this.fig.holder, true));
@@ -405,6 +459,12 @@ export class ExerciseScene {
         a1.position.copy(anchor);
         a1.userData.noFit = true;
         R.add(a1);
+        const col = box(0.09, anchor.y + 0.08, 0.09, furn);
+        col.position.set(anchor.x, (anchor.y + 0.08) / 2, anchor.z);
+        const base = box(0.45, 0.05, 0.45, furn);
+        base.position.set(anchor.x, 0.025, anchor.z);
+        col.userData.noFit = base.userData.noFit = true;
+        R.add(col, base);
         this.updaters.push(() => rods.forEach(([r, t]) => stretch(r, anchor, wp(f.hand[t as "L" | "R"]))));
       } else if (p.t === "pullbar") {
         const b = cyl(0.016, 1.3, metal);
@@ -438,7 +498,7 @@ export class ExerciseScene {
           const q = f.torso.getWorldQuaternion(new THREE.Quaternion());
           pad.quaternion.copy(q);
           pad.position.copy(f.torso.localToWorld(new THREE.Vector3(0, 0.22, this.motion && (this.motion.rootX ?? 0) > 0 ? 0.125 : -0.125)));
-          const top = Math.max(0.05, pad.position.y - 0.2);
+          const top = Math.max(0.05, pad.position.y - 0.04);
           post.scale.y = top;
           post.position.set(pad.position.x, top / 2, pad.position.z);
           if (seat) seat.position.copy(wp(f.root)).add(new THREE.Vector3(0, -0.14, 0));
@@ -473,6 +533,161 @@ export class ExerciseScene {
           post.scale.y = Math.max(0.05, h.y - 0.14);
           post.position.set(0, post.scale.y / 2, h.z);
         });
+      } else if (p.t === "machine") {
+        const padM = mat(0x23262e);
+        padM.metalness = 0.05;
+        padM.roughness = 0.85;
+        const acc = mat(0x4a1d22);
+        this.disposables.push(padM, acc);
+        const V = THREE.Vector3;
+        const tl = (x: number, y: number, z: number) => f.torso.localToWorld(new V(x, y, z));
+        const tag = <T extends THREE.Object3D>(o: T) => {
+          o.userData.noFit = true;
+          R.add(o);
+          return o;
+        };
+        const bx = (w: number, h: number, d: number, m: THREE.Material) => tag(box(w, h, d, m));
+        const cy = (r: number, h: number, m: THREE.Material) => tag(cyl(r, h, m));
+        const rotZ = new THREE.Quaternion().setFromAxisAngle(new V(0, 0, 1), Math.PI / 2);
+        const tq = () => f.torso.getWorldQuaternion(new THREE.Quaternion());
+        const mid = (a: THREE.Vector3, b: THREE.Vector3) => a.clone().add(b).multiplyScalar(0.5);
+        const o0 = () => wp(f.root);
+        const k = p.kind;
+        if (k === "chest" || k === "shoulder") {
+          const col = bx(0.5, 1.6, 0.1, metal);
+          const stack = bx(0.34, 0.8, 0.2, acc);
+          const hi = k === "shoulder" ? 0.62 : 0.45;
+          const grips = (["L", "R"] as const).map((s) => ({ s, grip: cy(0.02, 0.15, metal), lever: cy(0.02, 1, metal) }));
+          this.updaters.push(() => {
+            const o = o0();
+            col.position.set(o.x, 0.8, o.z - 0.36);
+            stack.position.set(o.x, 0.5, o.z - 0.52);
+            for (const { s, grip, lever } of grips) {
+              const h = wp(f.hand[s]);
+              grip.position.copy(h);
+              grip.quaternion.copy(tq()).multiply(rotZ);
+              stretch(lever as THREE.Mesh, h, new V(...tl((s === "L" ? 1 : -1) * 0.36, hi, -0.3).toArray()));
+            }
+          });
+        } else if (k === "pecdeck") {
+          const house = bx(0.7, 1.0, 0.16, metal);
+          const arms = (["L", "R"] as const).map((s) => ({ s, pad: cy(0.05, 1, padM), lever: cy(0.02, 1, metal) }));
+          this.updaters.push(() => {
+            const o = o0();
+            house.position.set(o.x, 0.6, o.z - 0.4);
+            for (const { s, pad, lever } of arms) {
+              const e = wp(f.elbow[s]);
+              const w = wp(f.hand[s]);
+              stretch(pad as THREE.Mesh, e, w);
+              stretch(lever as THREE.Mesh, e, tl((s === "L" ? 1 : -1) * 0.3, 0.4, -0.28));
+            }
+          });
+        } else if (k === "lat") {
+          const posts = [-0.7, 0.7].map(() => bx(0.08, 2.65, 0.08, metal));
+          const beam = bx(1.5, 0.08, 0.1, metal);
+          const bar = cy(0.018, 1, metal);
+          const wires = [cy(0.006, 1, metal), cy(0.006, 1, metal)];
+          const thigh = bx(0.46, 0.07, 0.22, padM);
+          const stack = bx(0.4, 1.2, 0.3, acc);
+          this.updaters.push(() => {
+            const o = o0();
+            posts[0]!.position.set(-0.7, 1.32, o.z + 0.2);
+            posts[1]!.position.set(0.7, 1.32, o.z + 0.2);
+            beam.position.set(0, 2.62, o.z + 0.2);
+            stack.position.set(0, 0.6, o.z + 0.55);
+            const L = wp(f.hand.L), Rr = wp(f.hand.R);
+            const dir = L.clone().sub(Rr).normalize();
+            const eL = L.clone().addScaledVector(dir, 0.2), eR = Rr.clone().addScaledVector(dir, -0.2);
+            stretch(bar as THREE.Mesh, eL, eR);
+            stretch(wires[0] as THREE.Mesh, new V(0.5, 2.55, o.z + 0.2), eL);
+            stretch(wires[1] as THREE.Mesh, new V(-0.5, 2.55, o.z + 0.2), eR);
+            const kn = mid(wp(f.knee.L), wp(f.knee.R));
+            thigh.position.set(kn.x, kn.y + 0.12, kn.z - 0.04);
+          });
+        } else if (k === "row") {
+          const plate = bx(0.55, 0.36, 0.05, metal);
+          const stack = bx(0.5, 1.5, 0.35, acc);
+          const grips = (["L", "R"] as const).map((s) => ({ s, grip: cy(0.018, 0.16, metal) }));
+          this.updaters.push(() => {
+            const t = mid(wp(f.toe.L), wp(f.toe.R));
+            plate.position.set(t.x, t.y + 0.13, t.z + 0.08);
+            plate.rotation.x = -0.35;
+            stack.position.set(0, 0.75, o0().z + 2.2);
+            for (const { s, grip } of grips) {
+              grip.position.copy(wp(f.hand[s]));
+              grip.quaternion.copy(tq()).multiply(rotZ);
+            }
+          });
+        } else if (k === "legext" || k === "legcurl" || k === "legcurlLying") {
+          const pad = cy(0.045, 0.34, padM);
+          const levers = [cy(0.02, 1, metal), cy(0.02, 1, metal)];
+          const thigh = k === "legcurlLying" ? null : bx(0.4, 0.07, 0.2, padM);
+          this.updaters.push(() => {
+            const a = mid(wp(f.ankle.L), wp(f.ankle.R));
+            const off = k === "legcurlLying" ? new V(0, 0.07, 0) : new V(0, 0.05, 0.05);
+            pad.position.copy(a).add(off);
+            pad.quaternion.copy(rotZ);
+            const o = o0();
+            [0.26, -0.26].forEach((x, i) => stretch(levers[i] as THREE.Mesh, new V(pad.position.x + x * 0.6, pad.position.y, pad.position.z), new V(x, o.y - 0.14, o.z + (k === "legcurlLying" ? 0.5 : 0.05))));
+            if (thigh) {
+              const kn = mid(wp(f.knee.L), wp(f.knee.R));
+              thigh.position.set(kn.x, kn.y + (k === "legext" ? 0.13 : 0.12), kn.z - 0.12);
+            }
+          });
+        } else if (k === "legpress") {
+          const plate = bx(0.85, 0.6, 0.05, metal);
+          plate.userData.noFit = false;
+          const rails = [bx(0.05, 0.05, 1, metal), bx(0.05, 0.05, 1, metal)];
+          const weights = [-1, 1].map(() => {
+            const w = cy(0.22, 0.07, plate.material as THREE.Material);
+            w.userData.noFit = false;
+            return w;
+          });
+          this.updaters.push(() => {
+            const t = mid(wp(f.toe.L), wp(f.toe.R));
+            const o = o0();
+            const n = t.clone().sub(o).normalize();
+            const c = t.clone().addScaledVector(n, 0.06);
+            plate.position.copy(c);
+            plate.quaternion.setFromUnitVectors(new V(0, 0, 1), n);
+            rails.forEach((r, i) => {
+              const x = i ? -0.34 : 0.34;
+              stretch(r as THREE.Mesh, new V(x, o.y - 0.15, o.z - 0.1), c.clone().addScaledVector(n, 0.5).add(new V(x, 0, 0)));
+              (r as THREE.Mesh).scale.x = (r as THREE.Mesh).scale.z = 1;
+            });
+            weights.forEach((w, i) => {
+              w.position.copy(c).addScaledVector(n, 0.12).add(new V(i ? -0.5 : 0.5, 0, 0));
+              w.quaternion.copy(rotZ);
+            });
+          });
+        } else if (k === "abductor") {
+          const pads = (["L", "R"] as const).map((s) => ({ s, pad: bx(0.08, 0.22, 0.1, padM), lever: cy(0.02, 1, metal) }));
+          this.updaters.push(() => {
+            const o = o0();
+            for (const { s, pad, lever } of pads) {
+              const x = s === "L" ? 1 : -1;
+              const kn = wp(f.knee[s]);
+              pad.position.set(kn.x + x * 0.11, kn.y, kn.z);
+              stretch(lever as THREE.Mesh, pad.position, new V(x * 0.34, o.y - 0.1, o.z - 0.12));
+            }
+          });
+        } else if (k === "hack") {
+          const rails = [-0.36, 0.36].map(() => cy(0.03, 1, metal));
+          const back = bx(0.42, 0.95, 0.08, padM);
+          const shp = bx(0.42, 0.1, 0.14, padM);
+          const foot = bx(0.8, 0.04, 0.5, metal);
+          this.updaters.push(() => {
+            const o = o0();
+            rails.forEach((r, i) => stretch(r as THREE.Mesh, new V(i ? 0.36 : -0.36, 0, o.z + 0.55), new V(i ? 0.36 : -0.36, 1.85, o.z - 0.3)));
+            const q = tq();
+            back.quaternion.copy(q);
+            back.position.copy(tl(0, 0.3, -0.13));
+            const s = mid(wp(f.sh.L), wp(f.sh.R));
+            shp.position.set(s.x, s.y + 0.08, s.z + 0.0);
+            foot.position.set(0, 0.02, o.z + 0.2);
+            foot.rotation.x = -0.35;
+          });
+        }
       } else if (p.t === "stepbox") {
         const b = box(0.45, 1, 0.4, furn);
         R.add(b);

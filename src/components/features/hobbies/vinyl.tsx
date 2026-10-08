@@ -89,7 +89,7 @@ export function VinylDeck({ songs, onOpen, empty }: Props) {
         )}
       </div>
       {song && (
-        <div className="notes" aria-hidden="true">
+        <div className="vnotes" aria-hidden="true">
           {NOTES.map((n, i) => (
             <span key={`${song.id}-${i}`} style={{ "--x": `${n.x}px`, "--s": `${n.s}px`, "--d": `${n.d}s`, "--dl": `${n.dl}s`, "--r": `${n.r}deg`, "--c": n.c } as React.CSSProperties}>
               {n.g}

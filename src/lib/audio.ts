@@ -89,6 +89,52 @@ export function playNutri(kind: "food" | "water") {
   if (ctx) scheduleNutri(ctx, ctx.currentTime + 0.01, kind);
 }
 
+/** Nota corta de sonido "de videojuego" (onda cuadrada o triangular con caída rápida). */
+function blip(audio: BaseAudioContext, out: AudioNode, freq: number, t: number, dur: number, type: OscillatorType, peak: number, slideTo?: number) {
+  const osc = audio.createOscillator();
+  const gain = audio.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t);
+  if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+  osc.connect(gain);
+  gain.connect(out);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(peak, t + 0.006);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.start(t);
+  osc.stop(t + dur + 0.03);
+}
+
+/**
+ * Sonidos al mover una canción de sección:
+ *  - learn (Por aprender): un «bup» suave que baja, como cerrar un libro;
+ *  - practice (En práctica): «ta-ding» que sube, alegre y rápido;
+ *  - mastered (Dominada): fanfarria corta de 8 bits con destellos finales.
+ */
+export function scheduleStatus(audio: BaseAudioContext, t0: number, kind: "learn" | "practice" | "mastered") {
+  const master = audio.createGain();
+  master.gain.value = 0.3;
+  master.connect(audio.destination);
+  if (kind === "learn") {
+    blip(audio, master, 520, t0, 0.14, "sine", 0.7, 330);
+    blip(audio, master, 330, t0 + 0.09, 0.16, "triangle", 0.4, 260);
+  } else if (kind === "practice") {
+    blip(audio, master, 523.25, t0, 0.11, "square", 0.22);
+    blip(audio, master, 784, t0 + 0.09, 0.2, "square", 0.22);
+    pluck(audio, master, 1046.5, t0 + 0.1, 0.5, 0.35);
+  } else {
+    [523.25, 659.25, 783.99].forEach((f, i) => blip(audio, master, f, t0 + i * 0.085, 0.12, "square", 0.2));
+    [1046.5, 1318.5, 1568].forEach((f, i) => pluck(audio, master, f, t0 + 0.28 + i * 0.01, 0.5, 0.9));
+    blip(audio, master, 1046.5, t0 + 0.28, 0.5, "triangle", 0.28);
+    [2093, 2637, 3136].forEach((f, i) => blip(audio, master, f, t0 + 0.5 + i * 0.07, 0.1, "sine", 0.25));
+  }
+}
+
+export function playStatus(kind: "learn" | "practice" | "mastered") {
+  unlockAudio();
+  if (ctx) scheduleStatus(ctx, ctx.currentTime + 0.01, kind);
+}
+
 /** Clic de metrónomo (más agudo en el primer tiempo). */
 function tick(audio: AudioContext, t: number, accent: boolean) {
   const osc = audio.createOscillator();

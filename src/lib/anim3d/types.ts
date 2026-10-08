@@ -39,7 +39,30 @@ export interface Pose {
   lift?: number;
 }
 
+export type V3 = [number, number, number];
+
+/** Ayudas para describir dónde van las manos: en el cuerpo (tronco) o en el mundo. */
+export interface HandsCtx {
+  /** Punto en coordenadas del tronco (x lateral, y a lo largo de la columna, z hacia el pecho) → mundo. */
+  t: (x: number, y: number, z: number) => V3;
+  /** Dirección en coordenadas del tronco → mundo. */
+  dir: (x: number, y: number, z: number) => V3;
+  /** Posición de los hombros en el mundo. */
+  sh: { L: V3; R: V3 };
+}
+export interface HandsOut {
+  L: V3;
+  R: V3;
+  /** Hacia dónde apunta el codo (vector, no posición). */
+  poleL?: V3;
+  poleR?: V3;
+}
+export type HandsFn = (s: number, c: HandsCtx) => HandsOut;
+
+export type MachineKind = "chest" | "shoulder" | "pecdeck" | "lat" | "row" | "legext" | "legcurl" | "legcurlLying" | "legpress" | "abductor" | "hack";
+
 export type Prop =
+  | { t: "machine"; kind: MachineKind }
   | { t: "bar"; on: "hands" | "back" | "front" }
   | { t: "db" }
   | { t: "cable"; anchor: [number, number, number]; to?: "hands" | "left" | "right" }
@@ -55,6 +78,10 @@ export type Prop =
 export interface Motion {
   /** Giro base del cuerpo: 0 de pie, -90 boca arriba, 90 boca abajo. */
   rootX?: number;
+  /** Las manos siguen estos puntos (cinemática inversa): el codo se coloca solo. Sustituye los ángulos de brazo. */
+  hands?: HandsFn;
+  /** Eleva el cuerpo (m) sobre el suelo, p. ej. el asiento de una máquina. */
+  raise?: number;
   /** Cómo se apoya: pies (por defecto), todo el cuerpo, colgado de las manos, o plancha. */
   ground?: "feet" | "all" | "hands" | "plank";
   /** Altura de la barra cuando se cuelga. */

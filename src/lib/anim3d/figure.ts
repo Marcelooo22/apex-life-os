@@ -277,3 +277,44 @@ export function handY(f: Figure): number {
   f.hand.R.getWorldPosition(b);
   return Math.min(a.y, b.y) - 0.04;
 }
+
+const clamp1 = (x: number) => Math.max(-1, Math.min(1, x));
+
+/**
+ * Cinemática inversa de un brazo (2 huesos): lleva la mano hasta `target` y coloca el codo hacia `pole`.
+ * Si el punto queda fuera de alcance, estira el brazo al máximo. Devuelve cuánto faltó (m) para auditar.
+ */
+export function solveArm(f: Figure, side: "L" | "R", target: THREE.Vector3, pole: THREE.Vector3): number {
+  const pivot = f.sh[side];
+  pivot.updateWorldMatrix(true, false);
+  const S = pivot.getWorldPosition(new THREE.Vector3());
+  const L1 = LEN.upper;
+  const L2 = LEN.fore + 0.06; // antebrazo + centro de la mano
+  const toT = target.clone().sub(S);
+  const dist = toT.length();
+  const u = dist > 1e-6 ? toT.clone().divideScalar(dist) : new THREE.Vector3(0, -1, 0);
+  const d = Math.min(L1 + L2 - 1e-4, Math.max(Math.abs(L1 - L2) + 1e-3, dist));
+  const T = S.clone().addScaledVector(u, d);
+  const a = (L1 * L1 - L2 * L2 + d * d) / (2 * d);
+  const h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+  const p = pole.clone().addScaledVector(u, -pole.dot(u));
+  if (p.lengthSq() < 1e-8) p.set(0, -1, 0).addScaledVector(u, u.y);
+  p.normalize();
+  const E = S.clone().addScaledVector(u, a).addScaledVector(p, h);
+  const d1 = E.clone().sub(S).normalize();
+  const d2 = T.clone().sub(E).normalize();
+  const flex = Math.acos(clamp1(d1.dot(d2)));
+
+  const q = pivot.getWorldQuaternion(new THREE.Quaternion()).invert();
+  const d1l = d1.clone().applyQuaternion(q);
+  const d2l = d2.clone().applyQuaternion(q);
+  const pl = p.clone().applyQuaternion(q);
+  const X = new THREE.Vector3().crossVectors(d1l, d2l);
+  if (X.lengthSq() > 1e-6) X.normalize().negate();
+  else X.crossVectors(d1l, pl).normalize(); // brazo recto: el codo se dobla hacia el lado del "pole"
+  const Y = d1l.clone().negate();
+  const Z = new THREE.Vector3().crossVectors(X, Y);
+  f.arm[side].quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z));
+  f.elbow[side].rotation.set(-flex, 0, 0);
+  return Math.max(0, dist - (L1 + L2));
+}
