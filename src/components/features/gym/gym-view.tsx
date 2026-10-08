@@ -11,6 +11,7 @@ import { GymHeatmap } from "./gym-heatmap";
 import { GymHero } from "./gym-hero";
 import { GymHistory } from "./gym-history";
 import { GymLeft, GymRight } from "./gym-side";
+import { openWorkout } from "@/lib/focus";
 import { startWorkout } from "./start";
 import { StartWorkoutCard } from "./start-workout-card";
 import { useGymSheets } from "./use-gym-sheets";
@@ -34,7 +35,8 @@ export function GymView() {
 
   const start = () => {
     setTab("today");
-    if (!gym.active) startWorkout(gym, current);
+    if (gym.active) openWorkout();
+    else startWorkout(gym, current);
   };
 
   return (

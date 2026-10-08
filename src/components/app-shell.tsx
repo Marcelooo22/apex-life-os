@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { WorkoutScreen } from "@/components/features/gym/workout-screen";
 import { Landing } from "@/components/landing/landing";
 import { ViewHost } from "@/components/layout/view-host";
 import { RestTimer } from "@/components/ui/rest-timer";
@@ -44,6 +45,7 @@ function AppContent() {
       <SvgDefs />
       <Landing />
       <ViewHost />
+      <WorkoutScreen />
       <RestTimer />
       <ToastHost />
       <FxHost />

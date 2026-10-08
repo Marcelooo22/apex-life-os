@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BodyMap } from "@/components/ui/body-map";
+import { AnatomyLazy } from "@/components/ui/anatomy-lazy";
 import { Icon } from "@/components/ui/icon";
 import { InfoTip } from "@/components/ui/info-tip";
 import { RadarChart } from "@/components/ui/radar-chart";
@@ -70,7 +70,7 @@ export function GymLeft({ gym, split, onStart, onBody }: LeftProps) {
   );
 }
 
-const REC_COLOR: Record<Recovery, string> = { rest: "#ef4444", recovering: "#f59e0b", ready: "#34d399", idle: "#3f3f46" };
+const REC_COLOR: Record<Recovery, string> = { rest: "#ef5350", recovering: "#f5a524", ready: "#34c58b", idle: "#8296b0" };
 
 /** Mapa del cuerpo: carga de los últimos 7 días o estado de recuperación de cada zona. */
 function BodyCard({ gym, today }: { gym: GymState; today: string }) {
@@ -81,7 +81,7 @@ function BodyCard({ gym, today }: { gym: GymState; today: string }) {
   const titles: Partial<Record<Zone, string>> = {};
   for (const l of loads) {
     const rec = recoveryOf(l);
-    fills[l.zone] = mode === "load" ? (l.sets > 0 ? `rgba(255,${Math.round(150 - loadLevel(l) * 100)},30,${0.25 + loadLevel(l) * 0.7})` : "rgba(255,255,255,.07)") : rec === "idle" ? "rgba(255,255,255,.07)" : `${REC_COLOR[rec]}cc`;
+    fills[l.zone] = mode === "load" ? (l.sets > 0 ? `hsl(${Math.round(24 - loadLevel(l) * 24)} ${Math.round(90 + loadLevel(l) * 5)}% ${Math.round(72 - loadLevel(l) * 22)}%)` : undefined) : rec === "idle" ? undefined : REC_COLOR[rec];
     titles[l.zone] = `${ZONE_LABEL[l.zone]}: ${Math.round(l.sets * 10) / 10} series esta semana · ${RECOVERY_LABEL[rec]}`;
   }
   const worked = loads.filter((l) => l.sets > 0).sort((a, b) => b.sets - a.sets).slice(0, 3);
@@ -92,7 +92,7 @@ function BodyCard({ gym, today }: { gym: GymState; today: string }) {
   return (
     <>
       <Segmented label="Qué ver en el cuerpo" options={[{ value: "recovery", label: "Recuperación" }, { value: "load", label: "Carga 7 días" }]} value={mode} onChange={setMode} tight className="mb-2" />
-      <BodyMap sex={sex} fills={fills} titles={titles} label="Mapa del cuerpo con las zonas trabajadas" />
+      <AnatomyLazy sex={sex} fills={fills} titles={titles} label="Mapa del cuerpo con las zonas trabajadas" />
       {mode === "recovery" ? (
         <div className="bm-leg">
           {(["rest", "recovering", "ready"] as const).map((r) => (
@@ -100,7 +100,7 @@ function BodyCard({ gym, today }: { gym: GymState; today: string }) {
           ))}
         </div>
       ) : (
-        <div className="bm-leg"><span><i style={{ background: "rgba(255,150,30,.35)" }} />Poco</span><span><i style={{ background: "rgba(255,50,30,.95)" }} />Mucho</span></div>
+        <div className="bm-leg"><span><i style={{ background: "hsl(24 90% 72%)" }} />Poco</span><span><i style={{ background: "hsl(0 95% 50%)" }} />Mucho</span></div>
       )}
       <ul className="bm-list">
         {resting.length > 0 && <li><b>Déjalos descansar:</b> {resting.map((l) => ZONE_LABEL[l.zone]).join(", ")}</li>}

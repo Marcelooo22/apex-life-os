@@ -111,6 +111,11 @@ export function useSettingsSheet() {
           {isIOS() && !isStandalone() && (
             <p className="txt mt-3.5">Para instalar en iPhone: toca Compartir y luego &quot;Añadir a pantalla de inicio&quot;.</p>
           )}
+          <p className="txt mt-3.5">
+            <a className="lnk" href="/creditos" target="_blank" rel="noopener noreferrer">
+              Créditos y licencias
+            </a>
+          </p>
           <button type="button" className="btn danger big gap" onClick={resetAll}>
             Borrar todos los datos
           </button>

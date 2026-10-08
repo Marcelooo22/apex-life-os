@@ -1,4 +1,5 @@
 import { unlockAudio } from "@/lib/audio";
+import { openWorkout } from "@/lib/focus";
 import { createWorkout } from "@/lib/gym";
 import { updateState } from "@/lib/store";
 import type { GymState } from "@/lib/types";
@@ -10,4 +11,5 @@ export function startWorkout(gym: GymState, split: string) {
     d.gym.active = workout;
   });
   unlockAudio();
+  openWorkout();
 }

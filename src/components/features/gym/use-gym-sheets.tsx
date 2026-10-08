@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { BodyMap } from "@/components/ui/body-map";
 import { useSheet } from "@/components/ui/sheet-provider";
 import { dayLabel } from "@/lib/dates";
 import { findExercise, ZONE_LABEL, type Zone } from "@/lib/exercises";
@@ -12,9 +11,9 @@ import { fmtRest, REST_PRESETS } from "@/lib/rest-timer";
 import { getState, updateState } from "@/lib/store";
 import { toast } from "@/lib/toast";
 import { cn, fmt, num } from "@/lib/utils";
+import { AnatomyLazy } from "@/components/ui/anatomy-lazy";
+import { ExerciseViewer } from "./exercise-viewer";
 import { ExercisePicker, parsePicks } from "./exercise-picker";
-import { exerciseFrames } from "@/lib/exercise-images";
-import { ExerciseAnim } from "./exercise-anim";
 
 /** Hojas modales de la sección Gym. */
 export function useGymSheets() {
@@ -146,16 +145,16 @@ export function useGymSheets() {
         const ex = findExercise(name);
         const sex = getState().gym.profile.sex;
         const fills: Partial<Record<Zone, string>> = {};
-        ex?.zones.forEach((z, i) => (fills[z] = i === 0 ? "rgba(255,106,43,.95)" : "rgba(255,176,32,.6)"));
+        ex?.zones.forEach((z, i) => (fills[z] = i === 0 ? "#ef5350" : "#f5a524"));
         openSheet({
           title: name,
           text: ex ? `${ex.equip} · ${ex.zones.map((z) => ZONE_LABEL[z]).join(", ")}` : "No tengo la guía de este ejercicio todavía.",
           focus: false,
           children: ex ? (
             <div className="help">
-                {exerciseFrames(ex.id) && <ExerciseAnim frames={exerciseFrames(ex.id)!} />}
+              <ExerciseViewer exerciseId={ex.id} />
               <div className="help-bm">
-                <BodyMap sex={sex} fills={fills} label={`Músculos que trabaja: ${ex.zones.map((z) => ZONE_LABEL[z]).join(", ")}`} />
+                <AnatomyLazy sex={sex} fills={fills} label={`Músculos que trabaja: ${ex.zones.map((z) => ZONE_LABEL[z]).join(", ")}`} />
               </div>
               <ol className="help-steps">
                 {ex.how.map((step, i) => (
