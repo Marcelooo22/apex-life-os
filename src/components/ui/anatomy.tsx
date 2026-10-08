@@ -8,9 +8,9 @@ const SLUG_ZONE: Record<string, Zone> = {
   "upper-back": "dorsales", trapezius: "trapecio", "lower-back": "lumbar", gluteal: "gluteos", quadriceps: "cuadriceps", hamstring: "isquios", calves: "gemelos",
 };
 
-const MUSCLE = "#8296b0";
-const SOFT = "#d3dae5";
-const NEUTRAL: Record<string, string> = { head: "#dfe4ec", hair: "#8d97a8", hands: SOFT, feet: SOFT, ankles: SOFT, knees: SOFT, neck: SOFT, adductors: "#a8b6c9", tibialis: "#a8b6c9" };
+const MUSCLE = "#5c6f93";
+const SOFT = "#252f3f";
+const NEUTRAL: Record<string, string> = { head: "#2e3949", hair: "#171c26", hands: SOFT, feet: SOFT, ankles: SOFT, knees: SOFT, neck: SOFT, adductors: "#44536e", tibialis: "#44536e" };
 
 interface Props {
   sex?: Sex;
@@ -27,7 +27,7 @@ function Side({ sex, side, fills, titles }: { sex: "male" | "female"; side: "fro
     const fill = (zone && fills?.[zone]) || NEUTRAL[part.slug] || MUSCLE;
     const paths = [...(part.common ?? []), ...(part.left ?? []), ...(part.right ?? [])];
     return (
-      <g key={part.slug} fill={fill} data-zone={zone}>
+      <g key={part.slug} fill={fill} data-zone={zone} style={zone && fills?.[zone] ? { filter: `drop-shadow(0 0 5px ${fill})` } : undefined}>
         {zone && titles?.[zone] && <title>{titles[zone]}</title>}
         {paths.map((d, i) => (
           <path key={i} d={d} />
@@ -37,7 +37,7 @@ function Side({ sex, side, fills, titles }: { sex: "male" | "female"; side: "fro
   };
   return (
     <svg viewBox={ANATOMY_VIEWBOX[sex][side]} aria-hidden="true">
-      <path d={view.outline} fill="#fff" stroke="#b3bdcc" strokeWidth={2} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      <path d={view.outline} fill="#0b0f15" stroke="#3a4559" strokeWidth={2} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       {view.parts.map(render)}
     </svg>
   );

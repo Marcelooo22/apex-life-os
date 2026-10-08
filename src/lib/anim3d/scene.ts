@@ -1,12 +1,13 @@
 import * as THREE from "three";
 import type { Zone } from "../exercises";
-import { applyPose, contactPoints, createFigure, handsMidY, handY, paintZones, type Figure } from "./figure";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { applyPose, contactPoints, createFigure, handsMidY, handY, paintZones, type BodySex, type Figure } from "./figure";
 import type { Motion, Pose, Prop } from "./types";
 
 const D = Math.PI / 180;
-const METAL = 0x6b7686;
-const PLATE = 0x39414d;
-const FURN = 0xc3cbd8;
+const METAL = 0xa7b3c6;
+const PLATE = 0x252c37;
+const FURN = 0x3b4556;
 
 const lerpPose = (a: Pose, b: Pose, s: number): Pose => {
   const out: Pose = {};
@@ -41,33 +42,63 @@ export class ExerciseScene {
   az = 40;
   el = 10;
 
+  private sex: BodySex = "male";
+  private zones: { primary: Zone[]; secondary: Zone[] } = { primary: [], secondary: [] };
+
   constructor(canvas: HTMLCanvasElement, opts: { preserve?: boolean } = {}) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "low-power", preserveDrawingBuffer: !!opts.preserve });
-    this.scene.add(new THREE.HemisphereLight(0xffffff, 0xaab6c8, 1.15));
-    const key = new THREE.DirectionalLight(0xffffff, 1.5);
-    key.position.set(2.5, 4, 3.5);
-    const fill = new THREE.DirectionalLight(0xcfe0ff, 0.55);
-    fill.position.set(-3, 2, -2);
-    this.scene.add(key, fill);
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 0.92;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
 
-    this.fig = createFigure();
+    // Reflejos de estudio: es lo que da brillo y volumen a los materiales.
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    const env = pmrem.fromScene(new RoomEnvironment(), 0.04);
+    this.scene.environment = env.texture;
+    this.scene.environmentIntensity = 0.5;
+    this.disposables.push(env);
+    pmrem.dispose();
+
+    this.scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x1a2030, 0.35));
+    const key = new THREE.DirectionalLight(0xffffff, 1.9);
+    key.position.set(2.6, 4.2, 3.4);
+    key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024);
+    const cam = key.shadow.camera;
+    cam.left = -2.4; cam.right = 2.4; cam.top = 2.4; cam.bottom = -2.4; cam.near = 0.5; cam.far = 14;
+    key.shadow.bias = -0.0004;
+    key.shadow.normalBias = 0.02;
+    key.shadow.radius = 3;
+    const rim = new THREE.DirectionalLight(0x7fb0ff, 1.7);
+    rim.position.set(-3, 2.6, -3.2);
+    const fill = new THREE.DirectionalLight(0xffe2c2, 0.55);
+    fill.position.set(-2.4, 1.6, 3);
+    this.scene.add(key, rim, fill);
+
+    this.fig = createFigure(this.sex);
     this.scene.add(this.fig.root, this.propsRoot);
 
-    const disc = new THREE.Mesh(new THREE.CircleGeometry(1.25, 48), new THREE.MeshBasicMaterial({ map: this.shadowTexture(), transparent: true, depthWrite: false }));
-    disc.rotation.x = -Math.PI / 2;
-    disc.position.y = 0.001;
-    this.scene.add(disc);
-    this.disposables.push(disc.geometry, disc.material as THREE.Material);
+    // Suelo: sombra real bajo el maniquí y un halo suave.
+    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), new THREE.ShadowMaterial({ opacity: 0.6 }));
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.receiveShadow = true;
+    const glow = new THREE.Mesh(new THREE.CircleGeometry(1.5, 64), new THREE.MeshBasicMaterial({ map: this.glowTexture(), transparent: true, depthWrite: false }));
+    glow.rotation.x = -Math.PI / 2;
+    glow.position.y = 0.0015;
+    shadow.position.y = 0.002;
+    this.scene.add(glow, shadow);
+    this.disposables.push(shadow.geometry, shadow.material as THREE.Material, glow.geometry, glow.material as THREE.Material);
   }
 
-  private shadowTexture() {
+  private glowTexture() {
     const c = document.createElement("canvas");
     c.width = c.height = 128;
     const g = c.getContext("2d")!;
-    const grad = g.createRadialGradient(64, 64, 6, 64, 64, 62);
-    grad.addColorStop(0, "rgba(60,72,95,.42)");
-    grad.addColorStop(0.55, "rgba(60,72,95,.16)");
-    grad.addColorStop(1, "rgba(60,72,95,0)");
+    const grad = g.createRadialGradient(64, 64, 4, 64, 64, 62);
+    grad.addColorStop(0, "rgba(150,185,255,.22)");
+    grad.addColorStop(0.6, "rgba(120,150,210,.08)");
+    grad.addColorStop(1, "rgba(120,150,210,0)");
     g.fillStyle = grad;
     g.fillRect(0, 0, 128, 128);
     const t = new THREE.CanvasTexture(c);
@@ -75,8 +106,43 @@ export class ExerciseScene {
     return t;
   }
 
+  /** Cambia el cuerpo (hombre o mujer) volviendo a construir el maniquí. */
+  private setSex(sex: BodySex) {
+    if (sex === this.sex) return;
+    this.sex = sex;
+    this.clearProps();
+    this.scene.remove(this.fig.root);
+    this.fig.dispose();
+    this.fig = createFigure(sex);
+    this.scene.add(this.fig.root);
+  }
+
+  private size = { w: 0, h: 0, dpr: 1 };
+  private low = false;
+
+  /** Calidad reducida para dispositivos lentos: sin sombras y a resolución normal. */
+  setLowQuality(low: boolean) {
+    if (low === this.low) return;
+    this.low = low;
+    this.renderer.shadowMap.enabled = !low;
+    this.scene.traverse((o) => {
+      const m = (o as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined;
+      const list = Array.isArray(m) ? m : m ? [m] : [];
+      for (const x of list) {
+        if ((x as THREE.MeshPhysicalMaterial).isMeshPhysicalMaterial) (x as THREE.MeshPhysicalMaterial).clearcoat = low ? 0 : 0.3;
+        x.needsUpdate = true;
+      }
+    });
+    if (this.size.w) this.setSize(this.size.w, this.size.h, this.size.dpr);
+  }
+
+  get isLow() {
+    return this.low;
+  }
+
   setSize(w: number, h: number, dpr: number) {
-    this.renderer.setPixelRatio(Math.min(dpr, 2));
+    this.size = { w, h, dpr };
+    this.renderer.setPixelRatio(this.low ? 1 : Math.min(dpr, 2));
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
@@ -84,8 +150,10 @@ export class ExerciseScene {
   }
 
   /* ---------- movimiento ---------- */
-  setMotion(m: Motion, primary: Zone[], secondary: Zone[]) {
+  setMotion(m: Motion, primary: Zone[], secondary: Zone[], sex: BodySex = this.sex) {
+    this.setSex(sex);
     this.motion = m;
+    this.zones = { primary, secondary };
     paintZones(this.fig, primary, secondary);
     this.buildProps(m.props ?? []);
     this.az = m.view ?? 40;
@@ -232,7 +300,7 @@ export class ExerciseScene {
   private buildProps(props: Prop[]) {
     this.clearProps();
     const R = this.propsRoot;
-    const mat = (c: number) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.55, metalness: 0.2 });
+    const mat = (c: number) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.4, metalness: 0.55 });
     const metal = mat(METAL), plate = mat(PLATE), furn = mat(FURN);
     this.disposables.push(metal, plate, furn);
     const cyl = (r: number, h: number, m: THREE.Material) => new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), m);
@@ -379,10 +447,21 @@ export class ExerciseScene {
         this.updaters.push(() => w.position.copy(wp(f.hand.L)).add(wp(f.hand.R)).multiplyScalar(0.5));
       }
     }
+    this.shadowAll();
+  }
+
+  private shadowAll() {
+    this.propsRoot.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh) o.castShadow = true;
+    });
+    for (const s of ["L", "R"] as const) this.fig.hand[s].traverse((o) => {
+      if ((o as THREE.Mesh).isMesh) o.castShadow = true;
+    });
   }
 
   dispose() {
     this.clearProps();
+    this.scene.environment = null;
     this.fig.dispose();
     this.disposables.forEach((d) => d.dispose());
     this.renderer.dispose();

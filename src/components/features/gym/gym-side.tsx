@@ -70,7 +70,7 @@ export function GymLeft({ gym, split, onStart, onBody }: LeftProps) {
   );
 }
 
-const REC_COLOR: Record<Recovery, string> = { rest: "#ef5350", recovering: "#f5a524", ready: "#34c58b", idle: "#8296b0" };
+const REC_COLOR: Record<Recovery, string> = { rest: "#ff5a5f", recovering: "#ffb020", ready: "#34d399", idle: "#5c6f93" };
 
 /** Mapa del cuerpo: carga de los últimos 7 días o estado de recuperación de cada zona. */
 function BodyCard({ gym, today }: { gym: GymState; today: string }) {

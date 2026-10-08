@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Icon } from "@/components/ui/icon";
 import { InfoTip } from "@/components/ui/info-tip";
 import { LineChart } from "@/components/ui/line-chart";
 import { Segmented } from "@/components/ui/segmented";
@@ -69,9 +70,14 @@ export function GymBody({ gym }: { gym: GymState }) {
       <section className="card">
         <div className="card-h">
           <h3>Tus medidas</h3>
-          <button type="button" className="btn primary sm" onClick={() => sheets.entry()}>
-            Registrar
-          </button>
+          <div className="row2 gap-1">
+            <button type="button" className="btn quiet sm" onClick={() => sheets.entry(last.id)}>
+              Editar
+            </button>
+            <button type="button" className="btn primary sm" onClick={() => sheets.entry()}>
+              Registrar
+            </button>
+          </div>
         </div>
         <div className="stats">{(["weight", "fat", "muscle", "waist"] as const).map((m) => stat(m, last))}</div>
         {bmi !== null && (
@@ -118,13 +124,19 @@ export function GymBody({ gym }: { gym: GymState }) {
           <h3>Historial</h3>
         </div>
         {[...entries].reverse().slice(0, 12).map((e) => (
-          <button key={e.id} type="button" className="hist" onClick={() => sheets.entry(e.id)}>
-            <span>
+          <div key={e.id} className="body-row">
+            <button type="button" className="body-main" onClick={() => sheets.entry(e.id)} aria-label={`Editar la medición del ${dayLabel(e.date)}`}>
               <b>{e.weight.toLocaleString("es")} kg</b>
               <small>{[e.fat !== undefined && `${e.fat}% grasa`, e.muscle !== undefined && `${e.muscle}% músculo`, e.waist !== undefined && `${e.waist} cm cintura`].filter(Boolean).join(" · ") || "Solo peso"}</small>
-            </span>
-            <span className="muted">{dayLabel(e.date)}</span>
-          </button>
+            </button>
+            <span className="muted body-date">{dayLabel(e.date)}</span>
+            <button type="button" className="icon-btn h-10 w-10 text-base" onClick={() => sheets.entry(e.id)} aria-label="Editar medición">
+              <Icon name="pencil" />
+            </button>
+            <button type="button" className="icon-btn h-10 w-10 text-base" onClick={() => sheets.remove(e.id)} aria-label="Eliminar medición">
+              <Icon name="trash" />
+            </button>
+          </div>
         ))}
       </section>
     </>

@@ -50,6 +50,16 @@ export function useBodySheets() {
         });
       },
 
+      /** Pregunta y elimina una medición (se puede llamar desde la lista, sin hoja abierta). */
+      remove(id: string) {
+        confirm("¿Eliminar medición?", "Se borra de tu historial. Luego puedes registrar otra.", "Eliminar", () => {
+          updateState((d) => {
+            d.gym.body = d.gym.body.filter((b) => b.id !== id);
+          });
+          toast("Medición eliminada");
+        });
+      },
+
       /** Registrar o editar una medición. */
       entry(id?: string) {
         const { body, profile } = getState().gym;
@@ -57,7 +67,7 @@ export function useBodySheets() {
         const last = [...body].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
         openSheet({
           title: entry ? "Editar medición" : "Registrar medidas",
-          text: entry ? undefined : "Con el peso basta. El resto es opcional.",
+          text: entry ? `Medición del ${entry.date}. Puedes cambiar cualquier dato o eliminarla.` : "Con el peso basta. El resto es opcional.",
           submit: "Guardar",
           fields: [
             { name: "weight", label: "Peso (kg)", type: "number", required: true, half: true, value: entry?.weight ?? last?.weight ?? "", placeholder: "70" },
@@ -71,12 +81,9 @@ export function useBodySheets() {
             ? {
                 label: "Eliminar",
                 fn: () => {
-                  confirm("¿Eliminar medición?", "Se borra de tu historial.", "Eliminar", () => {
-                    updateState((d) => {
-                      d.gym.body = d.gym.body.filter((b) => b.id !== entry.id);
-                    });
-                  });
-                  closeSheet();
+                  // Primero se cierra esta hoja y luego se abre la confirmación (al revés, se cerraba al instante).
+                  closeSheet(true);
+                  setTimeout(() => this.remove(entry.id), 60);
                 },
               }
             : undefined,
@@ -95,6 +102,7 @@ export function useBodySheets() {
               waist: opt(v.waist, 40, 200),
             };
             const height = opt(v.height, 100, 230);
+            if (entry) toast("Medición actualizada");
             updateState((d) => {
               const i = entry ? d.gym.body.findIndex((b) => b.id === entry.id) : -1;
               if (i >= 0) d.gym.body[i] = record;

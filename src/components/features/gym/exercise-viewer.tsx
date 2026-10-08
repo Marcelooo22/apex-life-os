@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon } from "@/components/ui/icon";
+import { useAppState } from "@/hooks/use-app-state";
 import { prefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { MOTIONS } from "@/lib/anim3d/motions";
 import type { ExerciseScene } from "@/lib/anim3d/scene";
@@ -21,19 +22,21 @@ export function ExerciseViewer({ exerciseId, fallback = null }: Props) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const scene = useRef<ExerciseScene | null>(null);
-  const latest = useRef({ ex, motion });
+  const sex: "male" | "female" = useAppState().gym.profile.sex === "female" ? "female" : "male";
+  const latest = useRef({ ex, motion, sex });
   const paused = useRef(false);
   const [state, setState] = useState<"loading" | "ready" | "failed">("loading");
+  const [note, setNote] = useState("");
   const [isPaused, setIsPaused] = useState(() => typeof window !== "undefined" && prefersReducedMotion());
 
   useEffect(() => {
-    latest.current = { ex, motion };
+    latest.current = { ex, motion, sex };
     const s = scene.current;
     if (s && ex && motion) {
-      s.setMotion(motion, ex.zones.slice(0, 1), ex.zones.slice(1));
+      s.setMotion(motion, ex.zones.slice(0, 1), ex.zones.slice(1), sex);
       s.renderAt(0);
     }
-  }, [ex, motion, state]);
+  }, [ex, motion, sex, state]);
 
   const hasMotion = !!motion;
   useEffect(() => {
@@ -62,8 +65,8 @@ export function ExerciseViewer({ exerciseId, fallback = null }: Props) {
           if (r.width > 0 && r.height > 0) s.setSize(r.width, r.height, window.devicePixelRatio || 1);
         };
         size();
-        const { ex: e, motion: m } = latest.current;
-        if (e && m) s.setMotion(m, e.zones.slice(0, 1), e.zones.slice(1));
+        const { ex: e, motion: m, sex: g } = latest.current;
+        if (e && m) s.setMotion(m, e.zones.slice(0, 1), e.zones.slice(1), g);
         size();
         s.renderAt(0);
         setState("ready");
@@ -78,11 +81,27 @@ export function ExerciseViewer({ exerciseId, fallback = null }: Props) {
         });
         io.observe(box);
 
+        // Calidad adaptable: si va por debajo de ~22 fotogramas/s durante un rato, se simplifica y, si aun así
+        // sigue lenta, la animación se pausa (queda la postura y el botón de reanudar).
+        let slow = 0;
         const tick = (now: number) => {
           raf = requestAnimationFrame(tick);
           const dt = (now - last) / 1000;
           last = now;
           if (!paused.current && visible && !document.hidden) {
+            slow = dt > 0.045 && dt < 1 ? slow + dt : Math.max(0, slow - dt * 2);
+            if (slow > 1.4) {
+              slow = 0;
+              if (!s.isLow) {
+                s.setLowQuality(true);
+                el.dataset.quality = "low";
+              } else {
+                paused.current = true;
+                setIsPaused(true);
+                setNote("Modo ahorro: pulsa ▶ para ver el movimiento");
+                el.dataset.quality = "paused";
+              }
+            }
             clock += Math.min(dt, 0.1);
             if (now - lastDraw > 24) {
               lastDraw = now;
@@ -140,11 +159,12 @@ export function ExerciseViewer({ exerciseId, fallback = null }: Props) {
           onClick={() => {
             paused.current = !paused.current;
             setIsPaused(paused.current);
+            setNote("");
           }}
         >
           <Icon name={isPaused ? "play" : "pause"} />
         </button>
-        <span className="xv-hint">Arrastra para girar</span>
+        <span className="xv-hint">{note || "Arrastra para girar"}</span>
       </div>
       <p className="xv-leg">
         <span><i style={{ background: "#ef5350" }} />{primary.join(", ")}</span>
