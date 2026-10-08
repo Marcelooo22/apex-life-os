@@ -1,3 +1,4 @@
+import SplashScreen from "@/components/SplashScreen";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
