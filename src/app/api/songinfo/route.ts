@@ -18,11 +18,30 @@ const clampBpm = (n: unknown) => {
   return Number.isFinite(v) && v >= 40 && v <= 260 ? Math.round(v) : null;
 };
 
+const fold = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+
+interface GsbHit {
+  id?: string;
+  title?: string;
+  tempo?: string;
+  key_of?: string;
+  artist?: { name?: string };
+}
+
+/** Entre los resultados, la versión que coincide en título y artista (no un remix ni otra canción). */
+function bestMatch(list: GsbHit[], title: string, artist: string): GsbHit | undefined {
+  const t = fold(title);
+  const a = fold(artist);
+  const sameArtist = (h: GsbHit) => !a || fold(h.artist?.name ?? "").includes(a) || a.includes(fold(h.artist?.name ?? "x"));
+  const candidates = list.filter(sameArtist);
+  return candidates.find((h) => fold(h.title ?? "") === t) ?? candidates.find((h) => fold(h.title ?? "").startsWith(t)) ?? candidates[0];
+}
+
 async function fromGetSongBpm(title: string, artist: string, apiKey: string): Promise<{ bpm: number | null; key: string | null } | null> {
   const search = await fetch(`${GSB}/search/?api_key=${encodeURIComponent(apiKey)}&type=both&lookup=${encodeURIComponent(`song:${title} artist:${artist}`)}`, { signal: AbortSignal.timeout(6000) });
   if (!search.ok) return null;
-  const list = ((await search.json()) as { search?: { id?: string; tempo?: string; key_of?: string }[] }).search;
-  const hit = Array.isArray(list) ? list[0] : undefined;
+  const list = ((await search.json()) as { search?: GsbHit[] }).search;
+  const hit = Array.isArray(list) ? bestMatch(list, title, artist) : undefined;
   if (!hit?.id) return null;
   let bpm = clampBpm(hit.tempo);
   let key = hit.key_of ?? null;
