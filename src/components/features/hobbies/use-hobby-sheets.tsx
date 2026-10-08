@@ -9,7 +9,7 @@ import { getState, updateState } from "@/lib/store";
 import { toast } from "@/lib/toast";
 import type { Song } from "@/lib/types";
 import { num, safeUrl, uid } from "@/lib/utils";
-import { SongInfoFill } from "./song-info-fill";
+import { foundInfo, SongInfoFill } from "./song-info-fill";
 import { Cover } from "./track-search";
 
 /** Hojas modales de la sección Hobbies (canciones e instrumentos). */
@@ -42,7 +42,6 @@ export function useHobbySheets() {
             { name: "album", label: "Álbum", type: "text", value: song?.album ?? "", placeholder: "Opcional" },
             { name: "genre", label: "Ritmo o aire", type: "text", half: true, value: song?.genre ?? "", placeholder: "Paseo, Merengue, Rock" },
             { name: "key", label: "Tono / hilera", type: "text", half: true, value: song?.key ?? "", placeholder: "Sol Mayor (G)" },
-            { name: "tuning", label: "Afinación", type: "text", value: song?.tuning ?? "", placeholder: "Ej. GCF, estándar, Mib" },
             { name: "bpmCurrent", label: "BPM actual", type: "number", half: true, value: song?.bpmCurrent || "", placeholder: "90" },
             { name: "bpmTarget", label: "BPM objetivo", type: "number", half: true, value: song?.bpmTarget || "", placeholder: "110" },
             { name: "status", label: "Estado", type: "seg", options: SONG_STATUS.map((s) => [s, s] as const), value: song?.status ?? "Por aprender" },
@@ -70,7 +69,6 @@ export function useHobbySheets() {
               album: (v.album ?? "").trim() || undefined,
               genre: (v.genre ?? "").trim(),
               key: (v.key ?? "").trim(),
-              tuning: (v.tuning ?? "").trim() || undefined,
               bpmCurrent: v.bpmCurrent ? num(v.bpmCurrent) : "",
               bpmTarget: v.bpmTarget ? num(v.bpmTarget) : "",
               status: pick(SONG_STATUS, v.status, "Por aprender"),
@@ -94,9 +92,7 @@ export function useHobbySheets() {
           focus: false,
           fields: [
             { name: "status", label: "Estado", type: "seg", options: SONG_STATUS.map((s) => [s, s] as const), value: "Por aprender" },
-            { name: "key", label: "Tono", type: "text", half: true, placeholder: "Sol Mayor (G)" },
-            { name: "tuning", label: "Afinación", type: "text", half: true, placeholder: instrument.detail || "Estándar" },
-            { name: "bpmTarget", label: "BPM objetivo", type: "number", half: true, placeholder: "Opcional" },
+            { name: "bpmTarget", label: "BPM de la canción", type: "number", placeholder: "Se rellena solo si lo encuentro" },
           ],
           header: (
             <div className="pick-head">
@@ -111,7 +107,9 @@ export function useHobbySheets() {
             </div>
           ),
           footer: <SongInfoFill track={track} />,
-          onSubmit: (v) =>
+          onSubmit: (v) => {
+            const info = foundInfo.get(track.id);
+            foundInfo.delete(track.id);
             save(instrumentId, {
               id: uid(),
               title: track.title,
@@ -120,14 +118,17 @@ export function useHobbySheets() {
               cover: track.cover || undefined,
               durationSec: track.durationSec || undefined,
               genre: "",
-              key: (v.key ?? "").trim(),
-              tuning: (v.tuning ?? "").trim() || undefined,
+              key: info?.key ?? "",
+              timeSig: info?.timeSig ?? undefined,
+              year: info?.year ?? undefined,
+              genres: info?.genres?.length ? info.genres : undefined,
               bpmCurrent: "",
               bpmTarget: v.bpmTarget ? num(v.bpmTarget) : "",
               status: pick(SONG_STATUS, v.status, "Por aprender"),
               link: "",
               notes: "",
-            }),
+            });
+          },
         });
       },
 

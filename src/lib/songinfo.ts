@@ -3,6 +3,11 @@ import type { MusicPlatform } from "./types";
 export interface SongInfo {
   bpm: number | null;
   key: string | null;
+  /** Compás (4/4, 3/4…), año, géneros y la ficha en GetSongBPM, cuando la fuente los da. */
+  timeSig?: string | null;
+  year?: number | null;
+  genres?: string[];
+  uri?: string | null;
   /** Quién aportó cada dato. */
   from: { bpm?: string; key?: string };
   /** true si algún dato es una estimación de la IA. */

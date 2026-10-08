@@ -124,3 +124,73 @@ body:has(.wkr) .sa-orb{display:none}
 .body-main{flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;min-height:52px;justify-content:center}
 .body-main small{color:var(--muted);font-size:12.5px}
 .body-date{font-size:12.5px;white-space:nowrap}
+
+.prog.on{border-color:rgba(255,106,43,.7);background:rgba(255,106,43,.12)}
+.prog-now{font-size:13.5px;margin:-4px 0 10px}.prog-now b{color:var(--text)}
+
+/* ===== Hobbies: tarjetas que flotan ===== */
+.song-card{cursor:pointer;transition:transform .35s var(--ease),box-shadow .35s,border-color .35s;will-change:transform;outline-offset:3px}
+@media(hover:hover){.song-card:hover,.song-card:focus-visible{transform:translateY(-6px) scale(1.012);border-color:rgba(192,132,252,.45);box-shadow:0 28px 54px -22px rgba(168,85,247,.65)}}
+.song-card:active{transform:scale(.992)}
+.sc-art{position:relative;flex:none}
+.sc-art .cover{position:relative;z-index:1}
+.sc-disc{position:absolute;top:50%;left:50%;width:58px;height:58px;border-radius:50%;background:repeating-radial-gradient(circle,#0d0d10 0 2px,#1c1c23 2px 4px);transform:translate(-50%,-50%);opacity:0;transition:transform .5s var(--ease),opacity .3s}
+@media(hover:hover){.song-card:hover .sc-disc,.song-card:focus-visible .sc-disc{opacity:1;transform:translate(-18%,-50%) rotate(180deg)}}
+.song-card .sc-top{align-items:center}
+.song-card .song-tags{margin-top:2px}
+
+/* ===== Hobbies: ficha grande de la canción ===== */
+.sd-back{position:fixed;inset:0;z-index:62;display:grid;place-items:center;padding:18px;overflow-y:auto;background:rgba(6,3,12,.72);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);animation:sdBack .3s var(--ease) both}
+.sd-back.sd-out{animation:sdBackOut .24s ease both}
+@keyframes sdBack{from{opacity:0}}
+@keyframes sdBackOut{to{opacity:0}}
+.sd{position:relative;width:min(560px,100%);max-height:calc(100dvh - 36px);overflow-y:auto;border-radius:30px;background:linear-gradient(165deg,rgba(74,36,112,.6),rgba(16,11,26,.97) 52%);border:1px solid rgba(192,132,252,.3);box-shadow:0 44px 110px -24px rgba(168,85,247,.6);animation:sdIn .6s cubic-bezier(.2,1.15,.3,1) both;scrollbar-width:none}
+.sd::-webkit-scrollbar{display:none}
+.sd-back.sd-out .sd{animation:sdOut .24s ease both}
+@keyframes sdIn{from{opacity:0;transform:translateY(46px) scale(.84)}}
+@keyframes sdOut{to{opacity:0;transform:translateY(22px) scale(.95)}}
+.sd-x{position:absolute;top:12px;right:12px;z-index:5}
+.sd-art{--s:min(210px,50vw);position:relative;display:flex;justify-content:center;align-items:center;height:calc(var(--s) + 52px);padding-top:26px;overflow:hidden}
+.sd-cover{position:relative;z-index:2;animation:sdCover .7s .08s var(--ease) both;transform:translateX(calc(var(--s) * -.26))}
+.sd-cover .cover{width:var(--s)!important;height:var(--s)!important;border-radius:20px;box-shadow:0 26px 54px -10px rgba(0,0,0,.85)}
+@keyframes sdCover{from{opacity:0;transform:translateX(calc(var(--s) * -.26)) scale(.8) rotate(-5deg)}}
+.sd-disc{position:absolute;z-index:1;left:50%;top:calc(26px + 26px);width:calc(var(--s) * .94);height:calc(var(--s) * .94);margin-left:calc(var(--s) * -.47);animation:sdDisc 1s .35s cubic-bezier(.2,.9,.25,1) both}
+.sd-disc i{display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,#c084fc 0 9%,#0d0d10 9.5% 14%,transparent 14.5%),repeating-radial-gradient(circle,#0d0d10 0 2px,#1d1d25 2px 4px);box-shadow:0 18px 40px -8px rgba(0,0,0,.7);animation:spin 5s linear 1.2s infinite}
+@keyframes sdDisc{from{transform:translateX(calc(var(--s) * -.26)) rotate(-60deg)}to{transform:translateX(calc(var(--s) * .3)) rotate(0)}}
+.sd-body{padding:6px 22px 24px;display:grid;gap:14px}
+.sd-body h2{font-size:28px;font-weight:800;letter-spacing:-.025em;line-height:1.1}
+.sd-status{display:flex;gap:6px;flex-wrap:wrap}.sd-status .chip{min-height:38px;font-size:13px}
+.sd-listen{text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.sd-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
+.sd-facts div{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.06);animation:sdFact .5s var(--ease) both}
+.sd-facts div:nth-child(2){animation-delay:.05s}.sd-facts div:nth-child(3){animation-delay:.1s}.sd-facts div:nth-child(4){animation-delay:.15s}.sd-facts div:nth-child(n+5){animation-delay:.2s}
+@keyframes sdFact{from{opacity:0;translate:0 10px}}
+.sd-facts dt{font-size:11.5px;color:var(--muted)}.sd-facts dd{font-weight:750;font-size:15.5px;line-height:1.25;overflow-wrap:anywhere}
+.sd-metro{padding:14px;border-radius:18px;background:rgba(192,132,252,.1);border:1px solid rgba(192,132,252,.25);display:grid;gap:10px}
+.sd-m-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sd-bpm{min-width:84px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;font-size:17px}
+.sd-m-b{display:flex;align-items:center;gap:14px}
+.sd-pulse{width:24px;height:24px;border-radius:50%;background:#c084fc;opacity:.3;flex:none}
+.sd-pulse.on{animation:metro 1s ease-out infinite}
+@keyframes metro{0%{transform:scale(1.7);opacity:1;box-shadow:0 0 26px #c084fc}35%{transform:scale(1);opacity:.5;box-shadow:none}100%{transform:scale(1);opacity:.3}}
+.sd-tip{font-size:12.5px;line-height:1.4}
+.sd-notes{font-size:14px;line-height:1.45;color:var(--muted);padding:10px 12px;border-left:3px solid #c084fc;background:rgba(255,255,255,.04);border-radius:0 12px 12px 0}
+.sd-credit{font-size:11.5px;text-align:center}.sd-credit a{text-decoration:underline}
+
+/* ===== Hobbies: disco que va rotando entre canciones ===== */
+.deck-stage{position:relative;width:100%;height:min(226px,64vw);overflow:hidden}
+.deck-disc{position:absolute;inset:0;display:grid;place-items:center;border-radius:24px}
+.deck-disc.d-in{cursor:pointer;animation:deckIn .75s cubic-bezier(.2,.9,.25,1) both}
+.deck-disc.d-out{pointer-events:none;animation:deckOut .7s cubic-bezier(.55,0,.85,.45) both}
+.deck-disc .vinyl{width:min(196px,58vw)}
+@keyframes deckIn{from{opacity:0;transform:translateX(80%) rotate(-130deg) scale(.78)}}
+@keyframes deckOut{to{opacity:0;transform:translateX(-80%) rotate(130deg) scale(.78)}}
+.deck .np-t{animation:ntIn .55s var(--ease)}
+@keyframes ntIn{from{opacity:0;translate:0 10px}}
+.deck-nav{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:2px}
+.deck-dots{display:flex;gap:7px;align-items:center}
+.deck-dot{position:relative;width:8px;height:8px;border-radius:99px;background:rgba(255,255,255,.22);transition:width .35s var(--ease),background .3s}
+.deck-dot.on{width:24px;background:#c084fc}
+.deck-dot::after{content:"";position:absolute;inset:-12px -3px}
+.plat{align-items:center}
+.xv-hint{max-width:calc(100% - 80px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

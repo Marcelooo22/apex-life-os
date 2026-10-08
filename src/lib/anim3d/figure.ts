@@ -14,22 +14,32 @@ const LEN = { thigh: 0.44, shin: 0.43, ankleH: 0.075, torso: 0.5, upper: 0.29, f
 const ZONES: Zone[] = ["pecho", "hombros", "biceps", "triceps", "antebrazos", "abdomen", "oblicuos", "dorsales", "trapecio", "lumbar", "gluteos", "cuadriceps", "isquios", "gemelos"];
 
 export interface Figure {
-  root: THREE.Group;
-  torso: THREE.Group;
-  neck: THREE.Group;
-  hip: Record<"L" | "R", THREE.Group>;
-  knee: Record<"L" | "R", THREE.Group>;
-  ankle: Record<"L" | "R", THREE.Group>;
-  sh: Record<"L" | "R", THREE.Group>;
-  arm: Record<"L" | "R", THREE.Group>;
-  elbow: Record<"L" | "R", THREE.Group>;
+  /** Lo que se añade a la escena (la raíz, y en el cuerpo con piel, también las mallas con esqueleto). */
+  holder: THREE.Object3D;
+  root: THREE.Object3D;
+  torso: THREE.Object3D;
+  neck: THREE.Object3D;
+  hip: Record<"L" | "R", THREE.Object3D>;
+  knee: Record<"L" | "R", THREE.Object3D>;
+  ankle: Record<"L" | "R", THREE.Object3D>;
+  sh: Record<"L" | "R", THREE.Object3D>;
+  arm: Record<"L" | "R", THREE.Object3D>;
+  elbow: Record<"L" | "R", THREE.Object3D>;
   hand: Record<"L" | "R", THREE.Object3D>;
   toe: Record<"L" | "R", THREE.Object3D>;
   heel: Record<"L" | "R", THREE.Object3D>;
   head: THREE.Object3D;
-  zoneMat: Record<Zone, THREE.MeshPhysicalMaterial>;
+  /** Colorea los músculos: principales en rojo, secundarios en ámbar. */
+  paint: (primary: Zone[], secondary: Zone[]) => void;
   dispose: () => void;
 }
+
+/** Medidas del esqueleto que comparten el maniquí de piezas y el cuerpo con piel. */
+export const BODY = {
+  male: { hipW: 0.095, shW: 0.2 },
+  female: { hipW: 0.1, shW: 0.183 },
+} as const;
+export const BONE_LEN = LEN;
 
 /** Superficie de revolución suave (muslos, brazos, tronco…) a partir de radios a lo largo de un eje vertical. */
 function smooth(points: [number, number][], segments = 28): THREE.LatheGeometry {
@@ -178,19 +188,20 @@ export function createFigure(sex: BodySex = "male"): Figure {
     sh[side] = pivot; arm[side] = ar; elbow[side] = e; hand[side] = hm;
   }
 
-  return {
-    root, torso, neck, hip, knee, ankle, sh, arm, elbow, hand, toe, heel, head, zoneMat,
+  const fig: Figure = {
+    holder: root, root, torso, neck, hip, knee, ankle, sh, arm, elbow, hand, toe, heel, head,
+    paint: (primary, secondary) => paintMaterials(zoneMat, primary, secondary),
     dispose: () => {
       geos.forEach((g) => g.dispose());
       mats.forEach((m) => m.dispose());
     },
   };
+  return fig;
 }
 
-/** Colorea las zonas: principales en rojo (con brillo), secundarias en ámbar y el resto en azul acero. */
-export function paintZones(f: Figure, primary: Zone[], secondary: Zone[]) {
+function paintMaterials(zoneMat: Record<Zone, THREE.MeshPhysicalMaterial>, primary: Zone[], secondary: Zone[]) {
   for (const z of ZONES) {
-    const m = f.zoneMat[z];
+    const m = zoneMat[z];
     const p = primary.includes(z);
     const s = secondary.includes(z);
     m.color.setHex(p ? PRIMARY : s ? SECONDARY : MUSCLE);
@@ -198,6 +209,8 @@ export function paintZones(f: Figure, primary: Zone[], secondary: Zone[]) {
     m.emissiveIntensity = p ? 0.28 : s ? 0.16 : 0;
   }
 }
+
+export const paintZones = (f: Figure, primary: Zone[], secondary: Zone[]) => f.paint(primary, secondary);
 
 const v = (n: number | undefined, d = 0) => n ?? d;
 

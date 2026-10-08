@@ -5,16 +5,19 @@ import { ViewShell } from "@/components/layout/view-shell";
 import { Icon } from "@/components/ui/icon";
 import { Rings } from "@/components/ui/rings";
 import { Segmented } from "@/components/ui/segmented";
+import { useSheet } from "@/components/ui/sheet-provider";
 import { useAppState } from "@/hooks/use-app-state";
 import { SONG_STATUS } from "@/lib/constants";
 import { updateState } from "@/lib/store";
 import { PLATFORMS } from "@/lib/songinfo";
+import { toast } from "@/lib/toast";
 import type { SongStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { SongCard } from "./song-card";
+import { SongDetail } from "./song-detail";
 import { TrackSearch } from "./track-search";
 import { useHobbySheets } from "./use-hobby-sheets";
-import { NowPlaying } from "./vinyl";
+import { VinylDeck } from "./vinyl";
 
 type StatusFilter = "all" | SongStatus;
 
@@ -22,6 +25,8 @@ type StatusFilter = "all" | SongStatus;
 export function HobbiesView() {
   const { hobbies, prefs } = useAppState();
   const sheets = useHobbySheets();
+  const { openSheet, closeSheet } = useSheet();
+  const [openId, setOpenId] = useState<string | null>(null);
   const instruments = hobbies.instruments;
   const [instrumentId, setInstrumentId] = useState(instruments[0]?.id ?? "");
   const [status, setStatus] = useState<StatusFilter>("all");
@@ -46,7 +51,42 @@ export function HobbiesView() {
   const mastered = songs.filter((s) => s.status === "Dominada").length;
   const percent = songs.length ? Math.round((mastered / songs.length) * 100) : 0;
   const filtered = songs.filter((s) => status === "all" || s.status === status);
-  const practicing = songs.find((s) => s.status === "En práctica");
+  const practicing = songs.filter((s) => s.status === "En práctica");
+  // El disco recorre las canciones de la sección que estás mirando (o las que practicas ahora).
+  const deck = status !== "all" ? filtered : practicing.length ? practicing : songs;
+  const deckTitle = status !== "all" ? status : practicing.length ? "Ahora practicando" : "Tu repertorio";
+  const platform = PLATFORMS.find((p) => p.id === prefs.musicPlatform) ?? PLATFORMS[0]!;
+  const pickPlatform = (id: (typeof PLATFORMS)[number]["id"]) =>
+    updateState((d) => {
+      d.prefs.musicPlatform = id;
+      d.prefs.platformSet = true;
+    });
+  const changePlatform = () =>
+    openSheet({
+      title: "¿Dónde escuchas música?",
+      text: "Todos los botones «Escuchar» te llevarán a esta plataforma.",
+      focus: false,
+      children: (
+        <div className="prog-list">
+          {PLATFORMS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              className={cn("prog", prefs.musicPlatform === p.id && "on")}
+              onClick={() => {
+                pickPlatform(p.id);
+                closeSheet();
+                toast(`Plataforma: ${p.label}`);
+              }}
+            >
+              <span className="prog-h">
+                <strong>{p.label}{prefs.musicPlatform === p.id ? " · actual" : ""}</strong>
+              </span>
+            </button>
+          ))}
+        </div>
+      ),
+    });
   const statusOptions = [{ value: "all" as StatusFilter, label: `Todas ${songs.length}` }, ...SONG_STATUS.map((s) => ({ value: s as StatusFilter, label: `${s} ${songs.filter((x) => x.status === s).length}` }))];
 
   const left = (
@@ -95,9 +135,10 @@ export function HobbiesView() {
     <>
       <section className="card">
         <div className="card-h">
-          <h3>Ahora practicando</h3>
+          <h3>{deckTitle}</h3>
+          {deck.length > 1 && <span className="muted text-[12.5px]">{deck.length} canciones</span>}
         </div>
-        <NowPlaying song={practicing} />
+        <VinylDeck key={`${deckTitle}-${deck.map((d) => d.id).join(",")}`} songs={deck} onOpen={setOpenId} empty={status !== "all" ? "No hay canciones con este estado." : "Pasa una canción a «En práctica» y aparecerá aquí."} />
       </section>
       <section className="card sum">
         <div className="rings">
@@ -124,25 +165,25 @@ export function HobbiesView() {
       action={{ label: "Gestionar hobbies e instrumentos", onClick: () => sheets.instrument(current.id) }}
       columns={{ left, right, labels: ["Instrumentos", "Biblioteca", "Práctica"] }}
     >
-      <div className="plat" role="radiogroup" aria-label="Plataforma para escuchar">
-        <span className="muted">Escuchar en</span>
-        {PLATFORMS.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            role="radio"
-            aria-checked={prefs.musicPlatform === p.id}
-            className={cn("chip", prefs.musicPlatform === p.id && "on")}
-            onClick={() =>
-              updateState((d) => {
-                d.prefs.musicPlatform = p.id;
-              })
-            }
-          >
-            {p.label}
+      {prefs.platformSet ? (
+        <div className="plat">
+          <span className="muted">
+            Escuchas en <b className="text-[var(--text)]">{platform.label}</b>
+          </span>
+          <button type="button" className="lnk text-[13px]" onClick={changePlatform}>
+            Cambiar
           </button>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <div className="plat" role="radiogroup" aria-label="Plataforma para escuchar">
+          <span className="muted">¿Dónde escuchas música?</span>
+          {PLATFORMS.map((p) => (
+            <button key={p.id} type="button" role="radio" aria-checked={prefs.musicPlatform === p.id} className={cn("chip", prefs.musicPlatform === p.id && "on")} onClick={() => pickPlatform(p.id)}>
+              {p.label}
+            </button>
+          ))}
+        </div>
+      )}
       <TrackSearch onPick={(t) => sheets.fromTrack(current.id, t)} onManual={() => sheets.song(current.id)} />
       <Segmented label="Filtrar por estado" options={statusOptions} value={status} onChange={setStatus} tight className="my-3.5" />
       {filtered.length === 0 ? (
@@ -152,7 +193,7 @@ export function HobbiesView() {
           Busca arriba una canción o <button type="button" className="lnk" onClick={() => sheets.song(current.id)}>añádela a mano</button>.
         </div>
       ) : (
-        filtered.map((song) => <SongCard key={song.id} song={song} instrumentId={current.id} onEdit={(id) => sheets.song(current.id, id)} />)
+        filtered.map((song) => <SongCard key={song.id} song={song} onOpen={setOpenId} />)
       )}
       <p className="muted attrib">
         BPM y tono con datos de{" "}
@@ -164,6 +205,7 @@ export function HobbiesView() {
           Créditos
         </a>
       </p>
+      {openId && <SongDetail songId={openId} instrumentId={current.id} onClose={() => setOpenId(null)} onEdit={(id) => sheets.song(current.id, id)} />}
     </ViewShell>
   );
 }

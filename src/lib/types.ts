@@ -83,6 +83,8 @@ export interface GymProfile {
 }
 
 export interface GymState {
+  /** Programa elegido (id de PROGRAMS) o "custom" si armó el suyo. */
+  program?: string;
   profile: GymProfile;
   body: BodyEntry[];
   /** Arranca el descanso solo al completar una serie. */
@@ -187,7 +189,12 @@ export interface Song {
   /** URL de la carátula oficial. */
   cover?: string;
   durationSec?: number;
+  /** Ya no se pide (depende del instrumento), pero se conserva en datos antiguos. */
   tuning?: string;
+  /** Datos que aporta GetSongBPM. */
+  timeSig?: string;
+  year?: number;
+  genres?: string[];
 }
 
 export interface Instrument {
@@ -289,7 +296,7 @@ export type MusicPlatform = "spotify" | "youtube" | "apple" | "deezer";
 export interface AppState {
   v: 2;
   name: string;
-  prefs: { musicPlatform: MusicPlatform };
+  prefs: { musicPlatform: MusicPlatform; /** La persona ya eligió su plataforma (si no, se muestran las opciones). */ platformSet?: boolean };
   gym: GymState;
   habits: HabitsState;
   nutrition: NutritionState;

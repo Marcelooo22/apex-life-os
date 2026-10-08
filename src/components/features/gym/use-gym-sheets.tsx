@@ -20,45 +20,46 @@ export function useGymSheets() {
   const { openSheet, closeSheet, confirm } = useSheet();
 
   return useMemo(() => {
-    /** Añade las divisiones de un programa sin pisar las que ya tienes. */
+    /** Cambia a un programa: sustituye por completo las rutinas (el historial de entrenos no se toca). */
     const applyProgram = (p: Program) => {
-      let added = 0;
       updateState((d) => {
-        for (const [name, list] of Object.entries(p.splits)) {
-          const same = Object.entries(d.gym.routines).some(([, l]) => l.join("|") === list.join("|"));
-          if (same) continue;
-          let final = name;
-          let n = 2;
-          while (d.gym.routines[final]) final = `${name} ${n++}`;
-          d.gym.routines[final] = [...list];
-          added++;
-        }
+        d.gym.routines = Object.fromEntries(Object.entries(p.splits).map(([name, list]) => [name, [...list]]));
         d.gym.goal = Math.min(7, p.days);
+        d.gym.program = p.id;
       });
-      toast(added ? `${p.name}: ${added} ${added === 1 ? "rutina añadida" : "rutinas añadidas"}. Meta semanal: ${p.days} días` : "Ya tenías esas rutinas");
+      toast(`${p.name}: ${Object.keys(p.splits).length} rutinas. Meta semanal: ${p.days} días`);
+    };
+
+    const chooseProgram = (p: Program) => {
+      const g = getState().gym;
+      if (g.program === p.id && Object.keys(g.routines).join("|") === Object.keys(p.splits).join("|")) return toast("Ya usas este programa");
+      closeSheet(true);
+      setTimeout(
+        () =>
+          confirm(
+            `¿Cambiar a ${p.name}?`,
+            `Sustituye tus rutinas actuales (${Object.keys(g.routines).slice(0, 6).join(", ") || "ninguna"}) por: ${Object.keys(p.splits).join(", ")}. Tu historial de entrenos se conserva.`,
+            "Cambiar",
+            () => applyProgram(p),
+          ),
+        60,
+      );
     };
 
     return {
       /** Elegir un programa prehecho. */
       programs() {
+        const current = getState().gym.program;
         openSheet({
           title: "Elige un programa",
-          text: "Se añade a tus rutinas; puedes cambiar cualquier ejercicio después. Si dudas, empieza por «Cuerpo completo».",
+          text: "Solo uno a la vez: al elegirlo reemplaza tus rutinas actuales (el historial no se borra). Puedes cambiar cualquier ejercicio después. Si dudas, empieza por «Cuerpo completo».",
           focus: false,
           children: (
             <div className="prog-list">
               {PROGRAMS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  className="prog"
-                  onClick={() => {
-                    applyProgram(p);
-                    closeSheet();
-                  }}
-                >
+                <button key={p.id} type="button" className={cn("prog", current === p.id && "on")} onClick={() => chooseProgram(p)}>
                   <span className="prog-h">
-                    <strong>{p.name}</strong>
+                    <strong>{p.name}{current === p.id ? " · actual" : ""}</strong>
                     <small>
                       {p.days} días · {p.level}
                     </small>
@@ -67,6 +68,23 @@ export function useGymSheets() {
                   <span className="prog-s">{Object.keys(p.splits).join(" · ")}</span>
                 </button>
               ))}
+              <button
+                type="button"
+                className={cn("prog", current === "custom" && "on")}
+                onClick={() => {
+                  updateState((d) => {
+                    d.gym.program = "custom";
+                  });
+                  closeSheet();
+                  toast("Programa propio: crea y edita tus rutinas con el + y «Cambiar ejercicios»");
+                }}
+              >
+                <span className="prog-h">
+                  <strong>Armar el mío{current === "custom" ? " · actual" : ""}</strong>
+                  <small>Tú decides</small>
+                </span>
+                <span className="prog-b">Conserva tus rutinas y crea o edita las que quieras, eligiendo ejercicios del catálogo.</span>
+              </button>
             </div>
           ),
         });

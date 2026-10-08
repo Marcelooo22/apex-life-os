@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import type { Zone } from "../exercises";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { loadBody, type BodyData } from "./body-data";
+import { createSkinnedFigure } from "./skinned";
 import { applyPose, contactPoints, createFigure, handsMidY, handY, paintZones, type BodySex, type Figure } from "./figure";
 import type { Motion, Pose, Prop } from "./types";
 
@@ -43,6 +45,11 @@ export class ExerciseScene {
   el = 10;
 
   private sex: BodySex = "male";
+  private skinned = false;
+  private disposed = false;
+  private lastS = 0;
+  private bodies: Partial<Record<BodySex, BodyData>> = {};
+  private loading = new Set<BodySex>();
   private zones: { primary: Zone[]; secondary: Zone[] } = { primary: [], secondary: [] };
 
   constructor(canvas: HTMLCanvasElement, opts: { preserve?: boolean } = {}) {
@@ -77,7 +84,8 @@ export class ExerciseScene {
     this.scene.add(key, rim, fill);
 
     this.fig = createFigure(this.sex);
-    this.scene.add(this.fig.root, this.propsRoot);
+    this.fig.holder.visible = false; // se muestra el cuerpo con piel en cuanto llega (o este, si no se pudo cargar)
+    this.scene.add(this.fig.holder, this.propsRoot);
 
     // Suelo: sombra real bajo el maniquí y un halo suave.
     const shadow = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), new THREE.ShadowMaterial({ opacity: 0.6 }));
@@ -106,15 +114,48 @@ export class ExerciseScene {
     return t;
   }
 
-  /** Cambia el cuerpo (hombre o mujer) volviendo a construir el maniquí. */
-  private setSex(sex: BodySex) {
-    if (sex === this.sex) return;
+  /** Descarga el cuerpo con piel por adelantado (para que esté listo al abrir el visor). */
+  async preload(sex: BodySex) {
+    if (this.bodies[sex]) return;
+    this.bodies[sex] = await loadBody(sex);
+  }
+
+  /** Pone el cuerpo (hombre o mujer): con piel si ya está descargado; si no, un maniquí de piezas oculto mientras llega. */
+  private swapFigure(sex: BodySex) {
+    const data = this.bodies[sex];
+    if (!data) this.fetchBody(sex);
+    if (sex === this.sex && this.skinned === !!data) return;
     this.sex = sex;
+    this.skinned = !!data;
     this.clearProps();
-    this.scene.remove(this.fig.root);
+    this.scene.remove(this.fig.holder);
     this.fig.dispose();
-    this.fig = createFigure(sex);
-    this.scene.add(this.fig.root);
+    this.fig = data ? createSkinnedFigure(sex, data) : createFigure(sex);
+    this.scene.add(this.fig.holder);
+    if (!data) this.fig.holder.visible = false;
+  }
+
+  private fetchBody(sex: BodySex) {
+    if (this.loading.has(sex)) return;
+    this.loading.add(sex);
+    loadBody(sex)
+      .then((d) => {
+        this.bodies[sex] = d;
+        this.loading.delete(sex);
+        if (this.disposed || this.sex !== sex || !this.motion) return;
+        const az = this.az;
+        this.setMotion(this.motion, this.zones.primary, this.zones.secondary, sex);
+        this.az = az;
+        this.renderAt(this.lastS);
+      })
+      .catch((err) => {
+        console.warn("Cuerpo 3D: se usa el maniquí de piezas", err);
+        this.loading.delete(sex);
+        if (!this.disposed && this.sex === sex) {
+          this.fig.holder.visible = true; // sin el archivo, se queda el maniquí de piezas
+          if (this.motion) this.renderAt(this.lastS);
+        }
+      });
   }
 
   private size = { w: 0, h: 0, dpr: 1 };
@@ -151,7 +192,7 @@ export class ExerciseScene {
 
   /* ---------- movimiento ---------- */
   setMotion(m: Motion, primary: Zone[], secondary: Zone[], sex: BodySex = this.sex) {
-    this.setSex(sex);
+    this.swapFigure(sex);
     this.motion = m;
     this.zones = { primary, secondary };
     paintZones(this.fig, primary, secondary);
@@ -227,6 +268,7 @@ export class ExerciseScene {
   renderAt(s: number) {
     const m = this.motion;
     if (!m) return;
+    this.lastS = s;
     this.place(m, lerpPose(m.a, m.b, s));
     this.fig.root.updateMatrixWorld(true);
     this.updaters.forEach((u) => u());
@@ -251,7 +293,7 @@ export class ExerciseScene {
       this.place(m, lerpPose(m.a, m.b, s));
       this.fig.root.updateMatrixWorld(true);
       this.updaters.forEach((u) => u());
-      box.union(new THREE.Box3().setFromObject(this.fig.root));
+      box.union(new THREE.Box3().setFromObject(this.fig.holder, true));
       this.propsRoot.children.forEach((c) => {
         if (!c.userData.noFit && c.visible) box.union(new THREE.Box3().setFromObject(c));
       });
@@ -460,6 +502,7 @@ export class ExerciseScene {
   }
 
   dispose() {
+    this.disposed = true;
     this.clearProps();
     this.scene.environment = null;
     this.fig.dispose();

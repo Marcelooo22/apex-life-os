@@ -25,7 +25,19 @@ interface GsbHit {
   title?: string;
   tempo?: string;
   key_of?: string;
-  artist?: { name?: string };
+  time_sig?: string;
+  uri?: string;
+  artist?: { name?: string; genres?: string[] };
+  album?: { year?: string };
+}
+
+interface GsbResult {
+  bpm: number | null;
+  key: string | null;
+  timeSig: string | null;
+  year: number | null;
+  genres: string[];
+  uri: string | null;
 }
 
 /** Entre los resultados, la versión que coincide en título y artista (no un remix ni otra canción). */
@@ -37,7 +49,7 @@ function bestMatch(list: GsbHit[], title: string, artist: string): GsbHit | unde
   return candidates.find((h) => fold(h.title ?? "") === t) ?? candidates.find((h) => fold(h.title ?? "").startsWith(t)) ?? candidates[0];
 }
 
-async function fromGetSongBpm(title: string, artist: string, apiKey: string): Promise<{ bpm: number | null; key: string | null } | null> {
+async function fromGetSongBpm(title: string, artist: string, apiKey: string): Promise<GsbResult | null> {
   const search = await fetch(`${GSB}/search/?api_key=${encodeURIComponent(apiKey)}&type=both&lookup=${encodeURIComponent(`song:${title} artist:${artist}`)}`, { signal: AbortSignal.timeout(6000) });
   if (!search.ok) return null;
   const list = ((await search.json()) as { search?: GsbHit[] }).search;
@@ -53,7 +65,16 @@ async function fromGetSongBpm(title: string, artist: string, apiKey: string): Pr
       key ??= song?.key_of ?? null;
     }
   }
-  return { bpm, key };
+  const year = parseInt(hit.album?.year ?? "", 10);
+  const uri = hit.uri?.startsWith("https://getsongbpm.com/") ? hit.uri : null;
+  return {
+    bpm,
+    key,
+    timeSig: /^\d{1,2}\/\d{1,2}$/.test(hit.time_sig ?? "") ? (hit.time_sig as string) : null,
+    year: Number.isFinite(year) && year > 1900 && year < 2100 ? year : null,
+    genres: (hit.artist?.genres ?? []).filter((g) => typeof g === "string").slice(0, 3),
+    uri,
+  };
 }
 
 async function fromDeezer(id: string): Promise<number | null> {
@@ -115,6 +136,12 @@ export async function GET(request: NextRequest) {
       if (r?.key) {
         info.key = formatKey(r.key);
         info.from.key = "GetSongBPM";
+      }
+      if (r) {
+        info.timeSig = r.timeSig;
+        info.year = r.year;
+        info.genres = r.genres;
+        info.uri = r.uri;
       }
     } catch { /* se prueba la siguiente fuente */ }
   }

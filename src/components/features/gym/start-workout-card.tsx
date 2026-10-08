@@ -2,6 +2,7 @@
 
 import { Icon } from "@/components/ui/icon";
 import { Segmented } from "@/components/ui/segmented";
+import { PROGRAMS } from "@/lib/presets";
 import type { GymState } from "@/lib/types";
 import { startWorkout } from "./start";
 import { useGymSheets } from "./use-gym-sheets";
@@ -24,9 +25,14 @@ export function StartWorkoutCard({ gym, split, onSplit }: Props) {
       <div className="card-h">
         <h3>Empezar entreno</h3>
         <button type="button" className="btn quiet sm" onClick={sheets.programs}>
-          Elegir programa
+          {gym.program ? "Cambiar programa" : "Elegir programa"}
         </button>
       </div>
+      {gym.program && (
+        <p className="muted prog-now">
+          Programa: <b>{gym.program === "custom" ? "Armado por ti" : (PROGRAMS.find((p) => p.id === gym.program)?.name ?? "Personalizado")}</b>
+        </p>
+      )}
       {first && (
         <button type="button" className="g-tip" onClick={sheets.programs}>
           <b>¿Primera vez?</b> Elige un programa ya armado (cuerpo completo, torso/pierna, PPL…) y empieza hoy.

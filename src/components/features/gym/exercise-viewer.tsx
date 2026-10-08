@@ -98,7 +98,7 @@ export function ExerciseViewer({ exerciseId, fallback = null }: Props) {
               } else {
                 paused.current = true;
                 setIsPaused(true);
-                setNote("Modo ahorro: pulsa ▶ para ver el movimiento");
+                setNote("Modo ahorro · pulsa ▶");
                 el.dataset.quality = "paused";
               }
             }
