@@ -27,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <body>
+        <SplashScreen />
         {children}
         <noscript>
           <p style={{ padding: 24, color: "#fff" }}>Apex necesita JavaScript activado.</p>
