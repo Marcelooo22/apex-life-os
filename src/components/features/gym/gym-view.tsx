@@ -11,6 +11,7 @@ import { GymHeatmap } from "./gym-heatmap";
 import { GymHero } from "./gym-hero";
 import { GymHistory } from "./gym-history";
 import { GymLeft, GymRight } from "./gym-side";
+import { MusclesCard } from "./muscles-card";
 import { openWorkout } from "@/lib/focus";
 import { startWorkout } from "./start";
 import { StartWorkoutCard } from "./start-workout-card";
@@ -52,8 +53,12 @@ export function GymView() {
       }}
     >
       <Segmented label="Vista" options={TABS} value={tab} onChange={setTab} tight className="mb-3.5" />
-      {tab === "today" &&
-        (gym.active ? <ActiveWorkoutCard workout={gym.active} gym={gym} /> : <StartWorkoutCard gym={gym} split={current} onSplit={setSplit} />)}
+      {tab === "today" && (
+        <>
+          {gym.active ? <ActiveWorkoutCard workout={gym.active} gym={gym} /> : <StartWorkoutCard gym={gym} split={current} onSplit={setSplit} />}
+          <MusclesCard gym={gym} />
+        </>
+      )}
       {tab === "month" && (
         <>
           <GymCalendar gym={gym} month={month} onMonth={setMonth} />

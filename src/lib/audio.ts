@@ -14,17 +14,17 @@ export function unlockAudio() {
   }
 }
 
-/** Una campana suave: tono fundamental + armónico inarmónico que se apaga antes (suena a "ding" de metal). */
-function bell(audio: BaseAudioContext, out: AudioNode, freq: number, t: number, peak: number, decay: number) {
-  for (const [mult, level, d] of [[1, 1, decay], [2.76, 0.32, decay * 0.45], [5.4, 0.12, decay * 0.2]] as const) {
+/** Una nota "pulsada" de marimba: ataque rápido, cuerpo cálido y caída corta. */
+function pluck(audio: BaseAudioContext, out: AudioNode, freq: number, t: number, peak: number, decay: number) {
+  for (const [type, mult, level, d] of [["sine", 1, 1, decay], ["triangle", 2, 0.28, decay * 0.5], ["sine", 4.1, 0.08, decay * 0.18]] as const) {
     const osc = audio.createOscillator();
     const gain = audio.createGain();
-    osc.type = "sine";
+    osc.type = type;
     osc.frequency.value = freq * mult;
     osc.connect(gain);
     gain.connect(out);
     gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(peak * level, t + 0.012);
+    gain.gain.exponentialRampToValueAtTime(peak * level, t + 0.008);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + d);
     osc.start(t);
     osc.stop(t + d + 0.05);
@@ -32,21 +32,61 @@ function bell(audio: BaseAudioContext, out: AudioNode, freq: number, t: number, 
 }
 
 /**
- * Sonido de Apex: arpegio ascendente de campanas (Do–Mi–Sol–Do) que remata en un acorde largo.
- * Dura unos 2,5 segundos. Se separa de `beep` para poder probarlo en un contexto de audio sin conexión.
+ * Aviso de fin de descanso: tres notas de marimba que suben (Sol–Do–Mi) y una cuarta más alta que se queda un momento.
+ * Es amable pero se nota; dura ~1,5 s y suena a volumen medio-bajo. Separado de `beep` para probarlo sin conexión.
  */
 export function scheduleChime(audio: BaseAudioContext, t0: number) {
   const master = audio.createGain();
   master.gain.value = 0.5;
   master.connect(audio.destination);
-  const notes: [number, number][] = [[523.25, 0], [659.25, 0.15], [783.99, 0.3], [1046.5, 0.45]];
-  for (const [f, dt] of notes) bell(audio, master, f, t0 + dt, 0.5, 1.2);
-  for (const f of [523.25, 783.99, 1046.5, 1318.5]) bell(audio, master, f, t0 + 0.72, 0.4, 3.0);
+  const notes: [number, number][] = [[392, 0], [523.25, 0.17], [659.25, 0.34], [783.99, 0.55]];
+  for (const [f, dt] of notes) pluck(audio, master, f, t0 + dt, 0.55, dt > 0.5 ? 1.2 : 0.45);
 }
 
 /** Aviso al terminar el descanso (y el Pomodoro). */
 export function beep() {
   if (ctx) scheduleChime(ctx, ctx.currentTime + 0.02);
+}
+
+/** "Bloop": una burbuja que sube de tono (barrido de frecuencia). */
+function bloop(audio: BaseAudioContext, out: AudioNode, t: number, from: number, to: number, dur: number, peak: number) {
+  const osc = audio.createOscillator();
+  const gain = audio.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(from, t);
+  osc.frequency.exponentialRampToValueAtTime(to, t + dur);
+  osc.connect(gain);
+  gain.connect(out);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(peak, t + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.06);
+  osc.start(t);
+  osc.stop(t + dur + 0.08);
+}
+
+/**
+ * Sonidos de nutrición, cortos y juguetones (nada que ver con el resto de la app):
+ *  - comida: «bloop» con dos chispitas agudas, como una burbuja que se transforma en destello;
+ *  - agua: dos burbujas seguidas, la segunda más grave («glu-glup»).
+ */
+export function scheduleNutri(audio: BaseAudioContext, t0: number, kind: "food" | "water") {
+  const master = audio.createGain();
+  master.gain.value = 0.32;
+  master.connect(audio.destination);
+  if (kind === "water") {
+    bloop(audio, master, t0, 520, 980, 0.085, 0.7);
+    bloop(audio, master, t0 + 0.12, 380, 720, 0.1, 0.75);
+    bloop(audio, master, t0 + 0.27, 760, 1250, 0.05, 0.3);
+  } else {
+    bloop(audio, master, t0, 300, 880, 0.09, 0.8);
+    bloop(audio, master, t0 + 0.11, 1250, 1500, 0.035, 0.35);
+    bloop(audio, master, t0 + 0.17, 1700, 2100, 0.035, 0.3);
+  }
+}
+
+export function playNutri(kind: "food" | "water") {
+  unlockAudio();
+  if (ctx) scheduleNutri(ctx, ctx.currentTime + 0.01, kind);
 }
 
 /** Clic de metrónomo (más agudo en el primer tiempo). */

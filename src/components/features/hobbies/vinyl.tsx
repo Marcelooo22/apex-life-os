@@ -13,6 +13,16 @@ interface Props {
   empty: string;
 }
 
+/** Notas que suben del disco: posición, tamaño, duración, retardo y color de cada una. */
+const NOTES = [
+  { g: "♪", x: -86, s: 20, d: 4.2, dl: 0, r: -14, c: "#c084fc" },
+  { g: "♫", x: 62, s: 26, d: 4.8, dl: 0.9, r: 12, c: "#f472b6" },
+  { g: "♬", x: -22, s: 18, d: 3.9, dl: 1.7, r: -8, c: "#fbbf24" },
+  { g: "♩", x: 96, s: 22, d: 5.2, dl: 2.4, r: 18, c: "#60a5fa" },
+  { g: "♪", x: -110, s: 16, d: 4.5, dl: 3.1, r: -20, c: "#34d399" },
+  { g: "♫", x: 20, s: 22, d: 4.6, dl: 3.8, r: 6, c: "#e879f9" },
+];
+
 function Disc({ song, onOpen, phase }: { song: Song; onOpen?: () => void; phase: "in" | "out" }) {
   const inner = (
     <div className="vinyl" aria-hidden="true">
@@ -78,6 +88,15 @@ export function VinylDeck({ songs, onOpen, empty }: Props) {
           </div>
         )}
       </div>
+      {song && (
+        <div className="notes" aria-hidden="true">
+          {NOTES.map((n, i) => (
+            <span key={`${song.id}-${i}`} style={{ "--x": `${n.x}px`, "--s": `${n.s}px`, "--d": `${n.d}s`, "--dl": `${n.dl}s`, "--r": `${n.r}deg`, "--c": n.c } as React.CSSProperties}>
+              {n.g}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="eq" aria-hidden="true">
         {Array.from({ length: 18 }, (_, i) => (
           <i key={i} style={{ animationDelay: `${-((i * 37) % 13) / 10}s`, animationDuration: `${0.9 + ((i * 7) % 6) / 10}s` }} />

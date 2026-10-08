@@ -8,6 +8,7 @@ import { SONG_STATUS } from "@/lib/constants";
 import { formatDuration } from "@/lib/music";
 import { updateState } from "@/lib/store";
 import { fetchSongInfo, listenLink, PLATFORMS } from "@/lib/songinfo";
+import { songStatusFx } from "@/lib/status-fx";
 import { toast } from "@/lib/toast";
 import type { Song } from "@/lib/types";
 import { cn, haptic, num, safeUrl } from "@/lib/utils";
@@ -114,7 +115,10 @@ export function SongDetail({ songId, instrumentId, onClose, onEdit }: Props) {
 
           <div className="sd-status" role="radiogroup" aria-label="Estado de estudio">
             {SONG_STATUS.map((s) => (
-              <button key={s} type="button" role="radio" aria-checked={song.status === s} className={cn("chip", song.status === s && "on")} onClick={() => edit((x) => void (x.status = s))}>
+              <button key={s} type="button" role="radio" aria-checked={song.status === s} className={cn("chip", song.status === s && "on")} onClick={() => {
+                  songStatusFx(song.status, s);
+                  edit((x) => void (x.status = s));
+                }}>
                 {s}
               </button>
             ))}

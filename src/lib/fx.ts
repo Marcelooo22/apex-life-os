@@ -5,6 +5,8 @@ export interface Burst {
   text: string;
 }
 
+import { playNutri } from "./audio";
+
 let counter = 0;
 const listeners = new Set<(b: Burst) => void>();
 
@@ -16,6 +18,7 @@ export const subscribeFx = (l: (b: Burst) => void) => {
 };
 
 export function burst(emoji: string, text: string) {
+  playNutri(emoji === "💧" ? "water" : "food");
   const b = { id: ++counter, emoji, text };
   listeners.forEach((l) => l(b));
 }

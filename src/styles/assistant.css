@@ -194,3 +194,90 @@ body:has(.wkr) .sa-orb{display:none}
 .deck-dot::after{content:"";position:absolute;inset:-12px -3px}
 .plat{align-items:center}
 .xv-hint{max-width:calc(100% - 80px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ===== Rangos: insignias animadas y línea de tiempo ===== */
+.rb-float{animation:rbFloat 4.2s ease-in-out infinite}
+@keyframes rbFloat{50%{transform:translateY(-5px)}}
+.rb-aura{transform-box:fill-box;transform-origin:center;animation:rbPulse 3.2s ease-in-out infinite}
+@keyframes rbPulse{50%{transform:scale(1.12);opacity:.7}}
+.rb-rays{transform-box:view-box;transform-origin:60px 72px;animation:rbSpin 26s linear infinite}
+@keyframes rbSpin{to{transform:rotate(360deg)}}
+.rb-sheen{animation:rbSheen 3.8s ease-in-out infinite}
+@keyframes rbSheen{0%,55%{transform:translateX(0) skewX(-18deg)}100%{transform:translateX(190px) skewX(-18deg)}}
+.rb-tw{transform-box:fill-box;transform-origin:center;animation:rbTw 2.4s ease-in-out infinite}
+@keyframes rbTw{0%,100%{opacity:.15;transform:scale(.5)}50%{opacity:1;transform:scale(1.15)}}
+.rb-locked{filter:grayscale(.5) brightness(.72) saturate(.9);opacity:.92}
+.g-warn{margin-top:4px;font-size:12.5px;font-weight:700;color:#fbbf24}
+
+.rt-back{position:fixed;inset:0;z-index:62;display:grid;place-items:center;padding:14px;background:rgba(5,4,10,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);animation:sdBack .3s var(--ease) both}
+.rt-back.rt-out{animation:sdBackOut .24s ease both}
+.rt{position:relative;width:min(640px,100%);max-height:calc(100dvh - 28px);overflow-y:auto;border-radius:30px;padding:22px 18px 40px;background:linear-gradient(170deg,#1c1626 0%,#0d0b13 45%);border:1px solid rgba(255,255,255,.1);box-shadow:0 40px 100px -24px rgba(192,132,252,.55);animation:sdIn .6s cubic-bezier(.2,1.15,.3,1) both;scrollbar-width:none}
+.rt::-webkit-scrollbar{display:none}
+.rt-back.rt-out .rt{animation:sdOut .24s ease both}
+.rt-x{position:absolute;top:12px;right:12px;z-index:5}
+.rt-head{display:flex;align-items:center;gap:16px;padding:6px 6px 10px}
+.rt-head h2{font-size:30px;font-weight:800;letter-spacing:-.025em;line-height:1.1}
+.rt-head p{color:var(--muted);font-size:14px}
+.rt-rules{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 6px}
+.rt-rules span{padding:6px 11px;border-radius:99px;background:rgba(255,255,255,.07);font-size:12.5px;color:var(--muted)}
+.rt-rules b{color:#34d399;margin-right:3px}.rt-rules .neg b{color:#fb7185}
+.rt-idle{font-size:13px;color:var(--muted);line-height:1.45;margin:6px 4px 2px}.rt-idle.warn{color:#fbbf24;font-weight:650}
+.rt-line{list-style:none;position:relative;margin:18px 0 0;padding:0;display:grid;gap:6px}
+.rt-line::before{content:"";position:absolute;left:calc(clamp(86px,28vw,160px) / 2);top:20px;bottom:20px;width:3px;border-radius:3px;background:linear-gradient(#52525b,#a1a1aa 30%,#facc15 55%,#7dd3fc 80%,#e879f9);opacity:.55}
+.rt-node{position:relative;display:flex;align-items:center;gap:14px;padding:6px 0;opacity:0;transform:translateY(26px) scale(.92);transition:opacity .6s var(--ease),transform .7s var(--ease)}
+.rt-node.rt-in{opacity:1;transform:none}
+.rt-art{flex:none;width:clamp(86px,28vw,160px);display:grid;place-items:center}
+.rt-art svg{max-width:100%;height:auto}
+.rt-card{display:grid;gap:1px;min-width:0}
+.rt-card b{font-size:calc(17px + var(--p) * 10px);font-weight:800;color:var(--rk);letter-spacing:-.01em}
+.rt-card small{color:var(--muted);font-size:12.5px}
+.rt-tier{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.rt-card em{font-style:normal;font-size:12px;font-weight:700;margin-top:3px}
+.rt-ok{color:#34d399}.rt-lock{color:var(--muted)}
+.rt-here{display:inline-block;width:max-content;padding:3px 10px;border-radius:99px;background:var(--rk);color:#0b0b10;animation:rtHere 1.8s ease-in-out infinite}
+@keyframes rtHere{50%{box-shadow:0 0 0 7px rgba(var(--rk-rgb),.0),0 0 22px rgba(var(--rk-rgb),.7)}}
+.rt-node.rt-now .rt-art::after{content:"";position:absolute;width:86%;aspect-ratio:1;border-radius:50%;border:2px solid var(--rk);animation:rtRing 2s ease-out infinite;opacity:0}
+.rt-node.rt-now .rt-art{position:relative}
+@keyframes rtRing{0%{transform:scale(.7);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+.rt-node.rt-locked .rt-card b{color:#8b8b96}
+@media(prefers-reduced-motion:reduce){.rt-node{opacity:1;transform:none;transition:none}}
+
+/* ===== Mapa del cuerpo: nombre del músculo al pasar el cursor ===== */
+.anat{position:relative}
+.anat-tip{position:absolute;z-index:5;pointer-events:none;transform:translate(-50%,calc(-100% - 16px));padding:7px 12px;border-radius:12px;background:rgba(18,18,24,.96);border:1px solid rgba(255,255,255,.16);box-shadow:0 14px 30px -10px rgba(0,0,0,.7);display:grid;gap:1px;white-space:nowrap;animation:tipIn .16s var(--ease)}
+.anat-tip b{font-size:13.5px;color:#fff}.anat-tip small{font-size:11.5px;color:#a1a1aa}
+@keyframes tipIn{from{opacity:0;transform:translate(-50%,calc(-100% - 8px))}}
+.anat g[data-slug]{cursor:default}
+.anat g[data-slug]:hover path{stroke:#fff;stroke-width:1.6;vector-effect:non-scaling-stroke}
+.muscles .anat{max-width:640px}
+.muscles .anat-v svg{max-height:560px}
+
+/* ===== Hábitos: burbuja de ideas y panel flotante ===== */
+.hi{margin-bottom:12px}
+.hi-bubble{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:99px;font-weight:700;font-size:14px;background:linear-gradient(135deg,rgba(253,224,71,.2),rgba(251,146,60,.16));border:1px solid rgba(253,224,71,.4);color:#fde68a;transition:transform .3s var(--ease),box-shadow .3s}
+.hi-bubble:hover{transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(253,224,71,.6)}
+.hi-bubble.on{background:rgba(253,224,71,.28);box-shadow:0 0 0 3px rgba(253,224,71,.18)}
+.hi-inline{margin-top:10px;padding:12px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--line);animation:hiIn .35s var(--ease)}
+.hi-float{position:fixed;z-index:63;overflow-y:auto;padding:14px;border-radius:24px;background:linear-gradient(165deg,rgba(40,34,58,.97),rgba(18,16,26,.98));border:1px solid rgba(253,224,71,.3);box-shadow:0 30px 70px -20px rgba(0,0,0,.8),0 0 40px -10px rgba(253,224,71,.25);animation:hiPop .45s cubic-bezier(.2,1.2,.3,1) both;scrollbar-width:none}
+.hi-float::-webkit-scrollbar{display:none}
+@keyframes hiPop{from{opacity:0;transform:translateX(24px) scale(.9)}}
+@keyframes hiIn{from{opacity:0;translate:0 -8px}}
+.hi-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.hi-cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.hi-cat{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:99px;font-size:12.5px;font-weight:650;background:rgba(var(--c),.12);border:1px solid rgba(var(--c),.3);color:rgb(var(--c));transition:background .25s,transform .25s var(--ease)}
+.hi-cat.on{background:rgba(var(--c),.3);color:#fff;transform:translateY(-1px)}
+.hi-list{list-style:none;display:grid;gap:6px}
+.hi-list li{animation:hiItem .4s var(--ease) both}
+@keyframes hiItem{from{opacity:0;translate:0 8px}}
+.hi-item{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;padding:11px 13px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid transparent;font-size:14px;transition:background .2s,transform .25s var(--ease),border-color .2s}
+.hi-item:hover{background:rgba(255,255,255,.12);transform:translateX(3px)}
+.hi-item.on{border-color:rgba(253,224,71,.55);background:rgba(253,224,71,.12)}
+.hi-item small{flex:none;color:var(--muted);font-size:11.5px}
+.hi-tip{margin-top:10px;font-size:12px;color:var(--muted)}
+
+/* ===== Música: notas que suben del disco ===== */
+.deck{position:relative}
+.notes{position:absolute;left:50%;top:46%;width:0;height:0;pointer-events:none;z-index:3}
+.notes span{position:absolute;left:var(--x);top:0;font-size:calc(var(--s) * 1.45);font-weight:700;color:var(--c);text-shadow:0 0 12px var(--c);opacity:0;animation:noteUp var(--d) ease-out var(--dl) infinite}
+@keyframes noteUp{0%{opacity:0;transform:translate(0,30px) rotate(0) scale(.6)}12%{opacity:.95}55%{transform:translate(18px,-70px) rotate(var(--r)) scale(1)}100%{opacity:0;transform:translate(-10px,-135px) rotate(calc(var(--r) * -1)) scale(.85)}}
+@media(prefers-reduced-motion:reduce){.notes{display:none}}

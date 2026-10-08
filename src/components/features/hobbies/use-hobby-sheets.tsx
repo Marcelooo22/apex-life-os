@@ -6,6 +6,7 @@ import { SONG_STATUS } from "@/lib/constants";
 import { pick } from "@/lib/guards";
 import { formatDuration, type TrackHit } from "@/lib/music";
 import { getState, updateState } from "@/lib/store";
+import { songStatusFx } from "@/lib/status-fx";
 import { toast } from "@/lib/toast";
 import type { Song } from "@/lib/types";
 import { num, safeUrl, uid } from "@/lib/utils";
@@ -61,6 +62,7 @@ export function useHobbySheets() {
               }
             : undefined,
           onSubmit: (v) => {
+            songStatusFx(song?.status, pick(SONG_STATUS, v.status, "Por aprender"));
             save(instrumentId, {
               ...song,
               id: song?.id ?? uid(),

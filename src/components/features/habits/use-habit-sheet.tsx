@@ -10,6 +10,7 @@ import { getState, updateState } from "@/lib/store";
 import { toast } from "@/lib/toast";
 import type { Habit, HabitCategory, HabitLink } from "@/lib/types";
 import { uid } from "@/lib/utils";
+import { HabitIdeas } from "./habit-ideas";
 
 const slotIds = SLOTS.map(([slot]) => slot);
 const categoryIds = HABIT_CATEGORIES.map((c) => c.id);
@@ -36,6 +37,7 @@ export function useHabitSheet() {
       openSheet({
         title: habit ? "Editar hábito" : "Nuevo hábito",
         submit: habit ? "Guardar" : "Crear hábito",
+        header: habit ? undefined : <HabitIdeas />,
         fields: [
           { name: "name", label: "Nombre", type: "text", required: true, value: base?.name ?? "", placeholder: "Ej. Leer 10 páginas" },
           { name: "category", label: "Categoría", type: "choice", options: HABIT_CATEGORIES.map((c) => [c.id, c.label, c.icon] as const), value: base?.category ?? "health" },
