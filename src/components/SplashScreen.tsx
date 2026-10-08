@@ -95,7 +95,7 @@ export default function SplashScreen() {
         {/* el orbe */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/icon-512.png"
+          src="/icons/icon-512.png"
           alt=""
           className="apex-orbe"
           width={512}
