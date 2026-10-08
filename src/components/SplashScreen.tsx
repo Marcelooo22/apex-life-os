@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
  * Se muestra una vez cada vez que abres la app (sesión nueva).
  * Cambia SOLO_UNA_VEZ_POR_SESION a false si quieres que salga en cada recarga.
  */
-const SOLO_UNA_VEZ_POR_SESION = true;
+const SOLO_UNA_VEZ_POR_SESION = false;
 const STORAGE_KEY = "apex-splash-visto";
 const DURACION_MS = 3600; // cuánto dura antes de empezar a irse
 const SALIDA_MS = 900; // duración del desvanecimiento final
